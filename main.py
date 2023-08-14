@@ -6,7 +6,7 @@ from app.routes import views as views_blueprint  # Import the Blueprint
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.secret_key = 'asdasd'
+app.secret_key = 'asdasdd'
 
 app.register_blueprint(views_blueprint)
 
