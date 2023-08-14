@@ -5,5 +5,4 @@ from os import path
 
 db = SQLAlchemy()
 
-DB_NAME = "users.db"
 
