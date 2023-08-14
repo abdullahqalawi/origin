@@ -1,18 +1,19 @@
-from flask import render_template, request, redirect, flash, session
+from flask import Blueprint,render_template, request, redirect, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
-from . import app, db  # Import 'app' from the current package
+from . import db  # Import 'app' from the current package
 from .models import User, CoachPlayerConnection  # Import models from the current package
 
-
-app.url_map.strict_slashes = False
-
-@app.route('/')
+print("getting her222e")
+print("getting here22")
+views = Blueprint('views', __name__)
+@views.route('/', methods=['GET', 'POST'])
 def home():
+    
     if 'user_id' in session:
         return render_template('hello_boss.html')
     return render_template('login.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+@views.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -29,7 +30,7 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/signup', methods=['GET', 'POST'])
+@views.route('/signup/', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         new_username = request.form['new_username']
@@ -54,7 +55,7 @@ def signup():
     return render_template('signup.html')
 
 
-@app.route('/change_password', methods=['GET', 'POST'])
+@views.route('/change_password/', methods=['GET', 'POST'])
 def change_password():
     if 'user_id' not in session:
         return redirect('/login')
@@ -81,7 +82,7 @@ def change_password():
     return render_template('change_password.html', user=user)
 
 
-@app.route('/delete_account', methods=['GET', 'POST'])
+@views.route('/delete_account/', methods=['GET', 'POST'])
 def delete_account():
     if 'user_id' not in session:
         return redirect('/login')
@@ -102,7 +103,7 @@ def delete_account():
 
 
 
-@app.route('/logout', methods=['GET'])
+@views.route('/logout', methods=['GET'])
 def logout():
     session.pop('user_id', None)
     return redirect('/')
