@@ -1,20 +1,10 @@
-from flask import Flask, flash, redirect, render_template, request, session
-from flask_sqlalchemy import SQLAlchemy
+from flask import render_template, request, redirect, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
+from . import app, db  # Import 'app' from the current package
+from .models import User, CoachPlayerConnection  # Import models from the current package
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'  # Change to your preferred database URI
-app.secret_key = 'asdasd'  # Change this to a secure secret key
-db = SQLAlchemy(app)
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-
-    def __repr__(self):
-        return f'<User {self.username}>'
+app.url_map.strict_slashes = False
 
 @app.route('/')
 def home():
@@ -116,9 +106,3 @@ def delete_account():
 def logout():
     session.pop('user_id', None)
     return redirect('/')
-
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-        app.run(debug=True)
- 
