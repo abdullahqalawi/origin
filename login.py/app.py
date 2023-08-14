@@ -58,7 +58,7 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
 
-            flash('Signup successful! You can now log in.')
+            flash('Signup successful! You can now log i.')
             return redirect('/')
 
     return render_template('signup.html')
