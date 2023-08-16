@@ -1,19 +1,23 @@
 from . import db  
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    role = db.Column(db.String(20), nullable=False) 
-    coach_code = db.Column(db.String(10), unique=True, nullable=True)
-    def __repr__(self):
-        return f'<User {self.username}>'
+from werkzeug.security import generate_password_hash, check_password_hash
 
-class Player(User):
-    id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    coach_code = db.Column(db.String(10), unique=True, nullable=False)
-    __mapper_args__ = {
-        'polymorphic_identity': 'player',
-    }
+class Coach(db.Model):
+    CoachID = db.Column(db.Integer, primary_key=True)
+    CoachName = db.Column(db.String(100), nullable=False)
+    CoachEmail = db.Column(db.String(120), unique=True, nullable=False)
+    CoachCode = db.Column(db.String(10), unique=True, nullable=False)
+    CoachPasswordHash = db.Column(db.String(120), nullable=False)
+
+    players = db.relationship('Player', back_populates='coach')
+
+   
+
+class Player(db.Model):
+    PlayerID = db.Column(db.Integer, primary_key=True)
+    PlayerName = db.Column(db.String(100), nullable=False)
+    PlayerEmail = db.Column(db.String(120), unique=True, nullable=False)
+    CoachCode = db.Column(db.String(10), db.ForeignKey('coach.CoachCode'), nullable=False)
+    PlayerPasswordHash = db.Column(db.String(120), nullable=False)
+
+    coach = db.relationship('Coach', back_populates='players')
 

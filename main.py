@@ -6,8 +6,6 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.secret_key = 'asdasd'
 
-app.register_blueprint(views_blueprint)
-
 if __name__ == "__main__":
     with app.app_context():
         db.init_app(app)
