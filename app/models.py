@@ -5,34 +5,14 @@ class User(db.Model):
     password_hash = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     role = db.Column(db.String(20), nullable=False) 
+    coach_code = db.Column(db.String(10), unique=True, nullable=True)
     def __repr__(self):
         return f'<User {self.username}>'
 
-class CoachPlayerConnection(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    coach_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-    player_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    
-    coach = db.relationship('User', foreign_keys=[coach_id])
-    player = db.relationship('User', foreign_keys=[player_id])
-
-# models.py
-
-
-class Coach(User):
-    id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    coach_code = db.Column(db.String(10), unique=True, nullable=False)
-    
-    __mapper_args__ = {
-        'polymorphic_identity': 'coach',
-    }
-
 class Player(User):
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    player_code = db.Column(db.String(10), unique=True, nullable=False)
-    
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    coach_code = db.Column(db.String(10), unique=True, nullable=False)
     __mapper_args__ = {
         'polymorphic_identity': 'player',
     }

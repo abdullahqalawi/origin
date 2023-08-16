@@ -1,7 +1,7 @@
 from flask import Blueprint,render_template, request, redirect, flash, session,url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from .models import User, CoachPlayerConnection ,Coach ,Player
+from .models import User,Player
 import random
 import string
 
@@ -42,7 +42,7 @@ def login():
 
     return render_template('login.html')
 
-from .models import User, CoachPlayerConnection, Coach, Player
+
 
 # ... (other route imports and code)
 
@@ -64,10 +64,9 @@ def signup():
             hashed_password = generate_password_hash(new_password)
             if role == 'coach':
                 coach_code = generate_coach_code()
-                new_user = Coach(username=new_username, password_hash=hashed_password, email=new_email, role=role, coach_code=coach_code)
+                new_user = User(username=new_username, password_hash=hashed_password, email=new_email, role=role, coach_code=coach_code)
             elif role == 'player':
-                player_code = generate_player_code()
-                new_user = Player(username=new_username, password_hash=hashed_password, email=new_email, role=role, player_code=player_code)
+                new_user = Player(username=new_username, password_hash=hashed_password, email=new_email, role=role)
             else:
                 flash('Invalid role.')
                 return redirect('/signup')
@@ -167,7 +166,7 @@ def reset_password():
     
     return render_template('reset_password.html')
 
-@views.route('/join_coach', methods=['GET', 'POST'])
+""" @views.route('/join_coach', methods=['GET', 'POST'])
 def join_coach():
     if 'user_id' not in session:
         return redirect('/login')
@@ -189,21 +188,17 @@ def join_coach():
 
     return render_template('join_coach.html', player=player)
 
-
+ """
 
 @views.route('/coach_dashboard')
 def coach_dashboard():
     if 'user_id' in session:
-        user = User.query.get(session['user_id'])
-        if user.role.lower() == 'coach':  # Check the role attribute
-            coach = user
-            players = CoachPlayerConnection.query.filter_by(coach_id=coach.id).join(Player, Player.id == CoachPlayerConnection.player_id).all()
-            return render_template('coach_dashboard.html', coach=coach, players=players)
-        else:
-            flash('Access denied.')
-            return redirect('/')
-    else:
-        return redirect('/login')
+        coach_id = session.get('coach_id')
+        coach = User.query.get(coach_id)
+
+        enrolled_players = Player.query.filter_by(coach_code=coach.coach_code).all()
+        return render_template('coach_dashboard.html', coach=coach, enrolled_players=enrolled_players)
+
 
 
     

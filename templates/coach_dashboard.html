@@ -5,29 +5,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-
-<div class="header">
-    <h1>Coach Dashboard</h1>
-    <form action="/logout" method="GET">
-        <button class="logout-btn" type="submit">Sign Out <i class="fas fa-sign-out-alt"></i></button>
-    </form>
-</div>
-
-<div class="content">
-    <div class="coach-box">
-        <h2>Welcome, Coach {{ coach.username }}</h2>
-        <p>Coach Code: {{ coach.coach_code }}</p>
-
-        <h3>Your Players:</h3>
-        <ul>
-            {% for player in players %}
-                <li>{{ player.player.username }} - {{ player.player.player_code }}</li>
-            {% endfor %}
-        </ul>
-        
-        <p><a href="/">Home</a></p>
-    </div>
-</div>
-
+    <h1>Welcome, {{ coach.username }}!</h1>
+    <h2>Enrolled Players:</h2>
+    <ul>
+        {% for player in enrolled_players %}
+        <li>{{ player.username }} ({{ player.email }})</li>
+        {% endfor %}
+    </ul>
+    <a href="/">Home</a>
 </body>
 </html>
