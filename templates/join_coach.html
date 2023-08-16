@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
+</head>
+<body>
+
+<div class="join-coach-box">
+    <h2>Join a Coach</h2>
+    <form action="/join_coach" method="POST">
+        <div class="user-box">
+            <input type="text" name="coach_code" required="">
+            <label>Coach Code</label>
+        </div>
+        <button type="submit">Join Coach</button>
+    </form>
+    <p>Back to <a href="/">Home</a></p>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</div>
+
+</body>
+</html>
