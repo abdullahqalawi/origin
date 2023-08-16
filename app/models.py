@@ -1,6 +1,4 @@
-from . import db  # Import db from the current package
-
-# Define the User class after initializing the db object
+from . import db  
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)

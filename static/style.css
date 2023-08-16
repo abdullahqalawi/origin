@@ -239,12 +239,12 @@ h1 {
     color: #333;
 }
 
-/* Font Awesome styles for icons */
+
 .fa-sign-out-alt {
     margin-left: 5px;
 }
 
-/* Additional styling for links */
+
 a {
     color: #03e9f4;
     text-decoration: none;
@@ -254,4 +254,4 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Rest of the animation rules */
+

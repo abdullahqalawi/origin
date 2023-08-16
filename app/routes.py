@@ -1,7 +1,7 @@
-from flask import Blueprint,render_template, request, redirect, flash, session
+from flask import Blueprint,render_template, request, redirect, flash, session,url_for
 from werkzeug.security import generate_password_hash, check_password_hash
-from . import db  # Import 'app' from the current package
-from .models import User, CoachPlayerConnection  # Import models from the current package
+from . import db  
+from .models import User, CoachPlayerConnection  
 
 print("getting her222e")
 print("getting here22")
@@ -98,9 +98,46 @@ def delete_account():
     return render_template('delete_account.html', user=user)
 
 
+@views.route('/forget_password', methods=['GET', 'POST'])
+def forget_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        
+        user = User.query.filter_by(email=email).first()
+        
+        if user:
+            session['reset_email'] = email  
+            return redirect('/reset_password')
+        else:
+            flash('Email not found. Please enter a valid email address.')
+    
+    return render_template('forget_password.html')
 
-
-
+@views.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    if request.method == 'POST':
+        new_password = request.form['new_password']
+        confirm_new_password = request.form['confirm_new_password']
+        
+        if new_password == confirm_new_password:
+            email = session.get('reset_email')  # Retrieve the email from the session
+            
+            if email:
+                user = User.query.filter_by(email=email).first()
+                if user:
+                    hashed_password = generate_password_hash(new_password)
+                    user.password_hash = hashed_password
+                    db.session.commit()
+                    flash('Password reset successfully. You can now log in with your new password.')
+                    return redirect('/login')
+                else:
+                    flash('User not found with the provided email.')
+            else:
+                flash('Email not found in the session.')
+        else:
+            flash('Passwords do not match.')
+    
+    return render_template('reset_password.html')
 
 
 @views.route('/logout', methods=['GET'])

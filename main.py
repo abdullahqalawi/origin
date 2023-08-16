@@ -1,6 +1,6 @@
 from flask import Flask
 from app import db
-from app.routes import views as views_blueprint  # Import the Blueprint
+from app.routes import views as views_blueprint  
 
 
 
