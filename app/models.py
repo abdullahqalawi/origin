@@ -16,4 +16,4 @@ class CoachPlayerConnection(db.Model):
     player_code = db.Column(db.String(10), unique=True, nullable=False)
 
     coach = db.relationship('User', foreign_keys=[coach_id])
-    player = db.relationship('User', foreign_keys=[player_id])
+    player = db.relationship('Userrrr', foreign_keys=[player_id])
