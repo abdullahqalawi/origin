@@ -5,13 +5,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <h1>Welcome, {{ coach.username }}!</h1>
+    <h1>Welcome, {{ coach.CoachName }}!</h1>
     <h2>Enrolled Players:</h2>
     <ul>
         {% for player in enrolled_players %}
-        <li>{{ player.username }} ({{ player.email }})</li>
+        <li>{{ player.PlayerName }} ({{ player.PlayerEmail }})</li>
         {% endfor %}
     </ul>
     <a href="/">Home</a>
 </body>
 </html>
+

@@ -32,11 +32,12 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        coach = Coach.query.filter_by(CoachEmail=username).first()
-        player = Player.query.filter_by(PlayerEmail=username).first()
+        coach = Coach.query.filter_by(CoachName=username).first()
+        player = Player.query.filter_by(PlayerName=username).first()
 
         if coach and coach.check_password(password):
             session['user_id'] = coach.CoachID
+            
             return redirect('/')
         elif player and player.check_password(password):
             session['user_id'] = player.PlayerID
@@ -69,14 +70,19 @@ def signup():
             hashed_password = generate_password_hash(new_password)
             if role == 'coach':
                 coach_code = generate_coach_code()
-                new_user = Coach(CoachName=new_username, CoachEmail=new_email, CoachCode=coach_code, CoachPasswordHash=hashed_password)
+                new_coach = Coach(CoachName=new_username, CoachEmail=new_email, CoachCode=coach_code, CoachPasswordHash=hashed_password)
+                new_coach.set_password(new_password)
+                db.session.add(new_coach)
+
             elif role == 'player':
-                new_user = Player(PlayerName=new_username, PlayerEmail=new_email, CoachCode=None, PlayerPasswordHash=hashed_password)
+                new_player = Player(PlayerName=new_username, PlayerEmail=new_email, CoachCode="Null", PlayerPasswordHash=hashed_password)
+                new_player.set_password(new_password)
+                db.session.add(new_player)
             else:
                 flash('Invalid role.')
                 return redirect('/signup')
 
-            db.session.add(new_user)
+            
             db.session.commit()
 
             flash('Signup successful! You can now log in.')
@@ -214,14 +220,18 @@ def join_coach():
 
  """
 
+
+@views.route('/coach_dashboard')
 def coach_dashboard():
     if 'user_id' in session:
         coach_id = session.get('user_id')
         coach = Coach.query.get(coach_id)
 
-        enrolled_players = Player.query.filter_by(coach_code=coach.coach_code).all()
+        enrolled_players = Player.query.filter_by(CoachCode=coach.CoachCode).all()
         return render_template('coach_dashboard.html', coach=coach, enrolled_players=enrolled_players)
-
+    else:
+        flash('Please log in as a coach.')
+        return redirect('/login')
 
     
 @views.route('/logout', methods=['GET'])
