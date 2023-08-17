@@ -7,7 +7,7 @@
 
 <div class="profile-box">
     <h2>Complete Your Player Profile</h2>
-    <form action="/player_profile" method="POST">
+    <form action="/player_form" method="POST">
         <div class="user-box">
             <label for="position">Position:</label>
             <select id="position" name="position" required>
@@ -34,12 +34,6 @@
         
         <div class="buttons">
             <button type="submit">Save Profile</button>
-            {% if player.Position is None or player.Finishing is None or player.Shooting is None or player.Rebounding is None %}
-                <a href="/player_profile" class="btn-fill">Continue Filling</a>
-            {% endif %}
-            
-            <a href="/" class="btn-home">Home</a>
-            <a href="/logout" class="btn-logout">Logout</a>
         </div>
     </form>
 </div>

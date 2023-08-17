@@ -10,12 +10,15 @@ class Coach( UserMixin,db.Model):
     CoachCode = db.Column(db.String(10), unique=True, nullable=False)
     CoachPasswordHash = db.Column(db.String(120), nullable=False)
 
+    def get_id(self):
+        return str(self.CoachID)
     players = db.relationship('Player', back_populates='coach')
     def set_password(self, password):
         self.CoachPasswordHash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.CoachPasswordHash, password)
+    
    
 
 class Player(UserMixin,db.Model):
@@ -25,11 +28,15 @@ class Player(UserMixin,db.Model):
     CoachCode = db.Column(db.String(10), db.ForeignKey('coach.CoachCode'), nullable=True)
     PlayerPasswordHash = db.Column(db.String(120), nullable=False)
 
-    Position = db.Column(db.String(50))
-    Finishing = db.Column(db.Integer)
-    Shooting = db.Column(db.Integer)
-    Rebounding = db.Column(db.Integer)
+    Position = db.Column(db.String(50), nullable=True)
+    Finishing = db.Column(db.Integer, nullable=True)
+    Shooting = db.Column(db.Integer, nullable=True)
+    Rebounding = db.Column(db.Integer, nullable=True)
 
+    def get_id(self):
+        return str(self.PlayerID)
+
+    
     
     coach = db.relationship('Coach', back_populates='players')
 

@@ -5,27 +5,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    {% if player %}
+    
+    
+    {% if player.coach_code != null %}
     <div class="coach-info">
         <h3>Your Coach</h3>
         <p>Coach Name: {{ coach_name }}</p>
         <p>Coach Code: {{ coach_code }}</p>
-        <a href="/join_coach">Join Coach</a>
+    {% endif %}
+        <a href="/join_coach">Enter a coach code</a>
     </div>
-{% endif %}
+    
 
-{% if coach %}
-    <div class="players-list">
-        <h3>Your Players</h3>
-        <ul>
-            {% for player in players %}
-                <li>{{ player.username }} - {{ player.player_code }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-{% endif %}
+    <p>Debug: Player Coach Code: {{ player.coach_code }} ({{ player.coach_code.__class__.__name__ }})</p>
 
 <div class="header">
+    
     <h1>Welcome to the Sports Hub</h1>
     <form action="/logout" method="GET">
         <button class="logout-btn" type="submit">Sign Out <i class="fas fa-sign-out-alt"></i></button>
@@ -40,7 +35,7 @@
         <div class="dashboard-links">
             <a href="/change_password">Change Password</a>
             <a href="/delete_account">Delete Account</a>
-            <a href="/coach_dashboard">Coach Dashboard</a>
+            <a href="/player_dashboard">player Dashboard!!!needs work</a> 
         </div>
     </div>
 </div>

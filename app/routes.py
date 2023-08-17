@@ -29,10 +29,12 @@ def home():
         elif user_type == 'player':
             player_id = session['user_id']
             player = Player.query.get(player_id)
+            
 
             # Check if the player's profile is complete
             if player.Position is None or player.Finishing is None or player.Shooting is None or player.Rebounding is None:
-                return redirect('/player_profile')  # Redirect to profile completion page
+                return redirect('/player_form')  # Redirect to profile completion page
+           
 
             return render_template('player_home.html', player=player)
     return redirect('/login')
@@ -90,7 +92,7 @@ def signup():
                 db.session.add(new_coach)
 
             elif role == 'player':
-                new_player = Player(PlayerName=new_username, PlayerEmail=new_email, CoachCode="Null", PlayerPasswordHash=hashed_password)
+                new_player = Player(PlayerName=new_username, PlayerEmail=new_email, CoachCode=None, PlayerPasswordHash=hashed_password)
                 new_player.set_password(new_password)
                 db.session.add(new_player)
                 
@@ -236,8 +238,8 @@ def join_coach():
 
  """
 
-@views.route('/player_profile', methods=['GET', 'POST'])
-def player_profile():
+@views.route('/player_form', methods=['GET', 'POST'])
+def player_form():
     if 'user_id' in session and session.get('user_type') == 'player':
         player_id = session['user_id']
         player = Player.query.get(player_id)
@@ -259,16 +261,10 @@ def player_profile():
 
             return redirect('/')
 
-        return render_template('player_profile.html')
+        return render_template('player_form.html', player=player) 
     else:
         flash('Please log in as a player.')
         return redirect('/login')
-
-
-
-
-
-
 
 
 
