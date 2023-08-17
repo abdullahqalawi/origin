@@ -19,16 +19,22 @@ def generate_player_code():
     return ''.join(random.choice(characters) for _ in range(code_length))
 
 views = Blueprint('views', __name__)
-
 @views.route('/', methods=['GET', 'POST'])
 @login_required 
 def home():
     if 'user_id' in session:
-        user_type = session.get('user_type')  # Add this line to get user type
+        user_type = session.get('user_type')
         if user_type == 'coach':
             return render_template('coach_home.html')
         elif user_type == 'player':
-            return render_template('player_home.html')
+            player_id = session['user_id']
+            player = Player.query.get(player_id)
+
+            # Check if the player's profile is complete
+            if player.Position is None or player.Finishing is None or player.Shooting is None or player.Rebounding is None:
+                return redirect('/player_profile')  # Redirect to profile completion page
+
+            return render_template('player_home.html', player=player)
     return redirect('/login')
 
 
@@ -229,6 +235,49 @@ def join_coach():
     return render_template('join_coach.html', player=player)
 
  """
+
+@views.route('/player_profile', methods=['GET', 'POST'])
+def player_profile():
+    if 'user_id' in session and session.get('user_type') == 'player':
+        player_id = session['user_id']
+        player = Player.query.get(player_id)
+
+        if request.method == 'POST':
+            position = request.form['position']
+            finishing = int(request.form['finishing'])
+            shooting = int(request.form['shooting'])
+            rebounding = int(request.form['rebounding'])
+
+            # Update player's profile details
+            player.Position = position
+            player.Finishing = finishing
+            player.Shooting = shooting
+            player.Rebounding = rebounding
+
+            db.session.commit()
+            flash('Profile details updated successfully!')
+
+            return redirect('/')
+
+        return render_template('player_profile.html')
+    else:
+        flash('Please log in as a player.')
+        return redirect('/login')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @views.route('/coach_dashboard')

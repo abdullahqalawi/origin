@@ -25,6 +25,12 @@ class Player(UserMixin,db.Model):
     CoachCode = db.Column(db.String(10), db.ForeignKey('coach.CoachCode'), nullable=True)
     PlayerPasswordHash = db.Column(db.String(120), nullable=False)
 
+    Position = db.Column(db.String(50))
+    Finishing = db.Column(db.Integer)
+    Shooting = db.Column(db.Integer)
+    Rebounding = db.Column(db.Integer)
+
+    
     coach = db.relationship('Coach', back_populates='players')
 
     def set_password(self, password):
