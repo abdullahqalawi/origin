@@ -1,44 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- Include the CSS files -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Page header and navigation -->
+    <div class="header">
+        <h1>Welcome to the Sports Hub</h1>
+        <form action="/logout" method="GET">
+            <button class="logout-btn" type="submit">Sign Out <i class="fas fa-sign-out-alt"></i></button>
+        </form>
+    </div>
 </head>
 <body>
-    
-    
-    {% if player.coach_code != null %}
-    <div class="coach-info">
-        <h3>Your Coach</h3>
-        <p>Coach Name: {{ coach_name }}</p>
-        <p>Coach Code: {{ coach_code }}</p>
+    <!-- Display coach information if available -->
+    {% if player.coach is not none %}
+        <div class="coach-info">
+            <h3>Your Coach</h3>
+            <p>Coach Name: {{ player.coach.CoachName }}</p>
+            <p>Coach Code: {{ player.coach.CoachCode }}</p>
+        </div>
+    {% else %}
+        <!-- Provide option to enter coach code -->
+        <div class="coach-info">
+            <a href="/join_coach">Enter a coach code</a>
+        </div>
     {% endif %}
-        <a href="/join_coach">Enter a coach code</a>
-    </div>
-    
 
-    <p>Debug: Player Coach Code: {{ player.coach_code }} ({{ player.coach_code.__class__.__name__ }})</p>
+    <!-- Content section -->
+    <div class="content">
+        <div class="hello-box">
+            <h2>Hello Sport Enthusiast!</h2>
+            <p>Stay updated with the latest sports news, events, and more.</p>
 
-<div class="header">
-    
-    <h1>Welcome to the Sports Hub</h1>
-    <form action="/logout" method="GET">
-        <button class="logout-btn" type="submit">Sign Out <i class="fas fa-sign-out-alt"></i></button>
-    </form>
-</div>
-
-<div class="content">
-    <div class="hello-box">
-        <h2>Hello Sport Enthusiaaaaaaaaaaaaaaast!</h2>
-        <p>Stay updated with the latest sports news, events, and more.</p>
-
-        <div class="dashboard-links">
-            <a href="/change_password">Change Password</a>
-            <a href="/delete_account">Delete Account</a>
-            <a href="/player_dashboard">player Dashboard!!!needs work</a> 
+            <!-- Dashboard links for players -->
+            <div class="dashboard-links">
+                <a href="/change_password">Change Password</a>
+                <a href="/delete_account">Delete Account</a>
+                <a href="/player_dashboard">Player Dashboard (work in progress)</a>
+            </div>
         </div>
     </div>
-</div>
-
 </body>
 </html>

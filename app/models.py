@@ -33,6 +33,9 @@ class Player(UserMixin,db.Model):
     Shooting = db.Column(db.Integer, nullable=True)
     Rebounding = db.Column(db.Integer, nullable=True)
 
+    CoachCode = db.Column(db.String(10), db.ForeignKey('coach.CoachCode'), nullable=True)
+    coach = db.relationship('Coach', back_populates='players')
+    
     def get_id(self):
         return str(self.PlayerID)
 

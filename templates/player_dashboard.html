@@ -15,16 +15,9 @@
 
 <div class="content">
     <div class="hello-box">
-        <h2>Hello, {{ player.username }}!</h2>
-        <p>Player Code: {{ player.player_code }}</p>
-        
-        <h3>Connected Coach</h3>
-        {% if player.coach %}
-            <p>Coach: {{ player.coach.username }}</p>
-            <p>Coach Code: {{ player.coach.coach_code }}</p>
-        {% else %}
-            <p>You are not connected to a coach yet. <a href="/join_coach">Join a Coach</a></p>
-        {% endif %}
+      
+        <h2>Hello, {{ player.PlayerName }}!</h2>
+        <p>Your Workout: {{ workout }}</p>
         
         <div class="dashboard-links">
             <a href="/change_password">Change Password</a>

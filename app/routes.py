@@ -29,14 +29,15 @@ def home():
         elif user_type == 'player':
             player_id = session['user_id']
             player = Player.query.get(player_id)
-            
-
+    
             # Check if the player's profile is complete
             if player.Position is None or player.Finishing is None or player.Shooting is None or player.Rebounding is None:
                 return redirect('/player_form')  # Redirect to profile completion page
-           
+            
+            coach = Coach.query.filter_by(CoachCode=player.CoachCode).first()
 
-            return render_template('player_home.html', player=player)
+
+            return render_template('player_home.html', player=player, coach=coach)
     return redirect('/login')
 
 
@@ -214,29 +215,28 @@ def reset_password():
     return render_template('reset_password.html')
 
 
-""" @views.route('/join_coach', methods=['GET', 'POST'])
+@views.route('/join_coach', methods=['GET', 'POST'])
 def join_coach():
     if 'user_id' not in session:
         return redirect('/login')
 
-    player = User.query.get(session['user_id'])
+    player_id = session['user_id']
+    player = Player.query.get(player_id)
 
     if request.method == 'POST':
         coach_code = request.form['coach_code']
-        coach = Coach.query.filter_by(coach_code=coach_code).first()
+        coach = Coach.query.filter_by(CoachCode=coach_code).first()
 
         if coach:
-            connection = CoachPlayerConnection(coach_id=coach.id, player_id=player.id)
-            db.session.add(connection)
+            player.CoachCode = coach_code
             db.session.commit()
             flash('Joined coach successfully!')
-            return redirect('/')
-
-        flash('Coach not found with the provided code.')
+            return redirect('/player_home')
+        else:
+            flash('Coach not found with the provided code.')
 
     return render_template('join_coach.html', player=player)
 
- """
 
 @views.route('/player_form', methods=['GET', 'POST'])
 def player_form():
@@ -270,7 +270,21 @@ def player_form():
 
 
 
+@views.route('/player_home')
+def player_home():
+    if 'user_id' in session and session.get('user_type') == 'player':
+        player_id = session['user_id']
+        player = Player.query.get(player_id)
 
+        coach = None
+        if player.CoachCode:
+            coach = Coach.query.filter_by(CoachCode=player.CoachCode).first()
+
+        return render_template('player_home.html', player=player, coach=coach,coach_name=coach.CoachName if coach else None,
+                               coach_code=coach.CoachCode if coach else None)
+    else:
+        flash('Please log in as a player.')
+        return redirect('/login')
 
 
 
@@ -288,6 +302,70 @@ def coach_dashboard():
         flash('Please log in as a coach.')
         return redirect('/login')
 
+
+
+
+
+@views.route('/player_dashboard')
+def player_dashboard():
+    
+    if 'user_id' in session:
+        player_id = session['user_id']
+        player = Player.query.get(player_id)
+
+        # Get the player's position and skills
+        position = player.Position
+        skills = {
+            'Finishing': player.Finishing,
+            'Shooting': player.Shooting,
+            'Rebounding': player.Rebounding
+        }
+        def generate_workout(position, lowest_skills, equal_skills, highest_rated_skills):
+            workout_types = {
+                    'Point Guard': ['1', '6', '11'],
+                    'Shooting Guard': ['2', '7', '12'],
+                    'Small Forward': ['3', '8', '13'],
+                    'Power Forward': ['4', '9', '14'],
+                    'Center': ['5', '10', '15']
+            }
+
+            workout_type = None
+            if equal_skills:
+                workout_type = workout_types[position][0]  # Default to Finishing/Shooting
+            elif 'Finishing' in lowest_skills and 'Shooting' in lowest_skills:
+                workout_type = workout_types[position][0]
+            elif 'Finishing' in lowest_skills and 'Rebounding' in lowest_skills:
+                workout_type = workout_types[position][1]
+            elif 'Shooting' in lowest_skills and 'Rebounding' in lowest_skills:
+                workout_type = workout_types[position][2]
+
+            # Prioritize workout combining lowest-rated skill with the other highest-rated skill if Rebounding is tied with highest skill
+            if rebounding_tied_with_highest:
+                if 'Finishing' in rebounding_tied_with_highest:
+                    workout_type = workout_types[position][0]
+                elif 'Shooting' in rebounding_tied_with_highest:
+                    workout_type = workout_types[position][1]
+
+            return workout_type
+
+
+        # Determine the highest-rated skill(s) and lowest-rated skill
+        highest_rated_skills = [skill for skill, rating in skills.items() if rating == max(skills.values())]
+        lowest_rated_skill = min(skills, key=skills.get)
+
+        # Check if all skills are rated equally
+        equal_skills = len(set(skills.values())) == 1
+
+        # Check if Rebounding is tied with the highest-rated skill
+        rebounding_tied_with_highest = 'Rebounding' in highest_rated_skills
+        
+
+        # Generate the workout using the generate_workout function
+        workout = generate_workout(position, [lowest_rated_skill], equal_skills, rebounding_tied_with_highest)
+
+        return render_template('player_dashboard.html', player=player, workout=workout)
+    else:
+        return redirect('/login')
     
 @views.route('/logout', methods=['GET'])
 @login_required
