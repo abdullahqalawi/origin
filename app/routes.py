@@ -1,4 +1,5 @@
 from flask import Blueprint,render_template, request, redirect, flash, session,url_for
+from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from .models import Coach, Player
@@ -20,6 +21,7 @@ def generate_player_code():
 views = Blueprint('views', __name__)
 
 @views.route('/', methods=['GET', 'POST'])
+@login_required 
 def home():
     if 'user_id' in session:
         user_type = session.get('user_type')  # Add this line to get user type
@@ -43,10 +45,12 @@ def login():
         if coach and coach.check_password(password):
             session['user_id'] = coach.CoachID
             session['user_type'] = 'coach'  # Add this line
+            login_user(coach)
             return redirect('/')
         elif player and player.check_password(password):
             session['user_id'] = player.PlayerID
             session['user_type'] = 'player'  # Add this line
+            login_user(player) 
             return redirect('/')
         else:
             flash('Wrong username or password!')
@@ -241,6 +245,7 @@ def coach_dashboard():
 
     
 @views.route('/logout', methods=['GET'])
+@login_required
 def logout():
     session.pop('user_id', None)
     return redirect('/')

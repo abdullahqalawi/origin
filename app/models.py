@@ -1,7 +1,9 @@
 from . import db  
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
-class Coach(db.Model):
+
+class Coach( UserMixin,db.Model):
     CoachID = db.Column(db.Integer, primary_key=True)
     CoachName = db.Column(db.String(100), nullable=False)
     CoachEmail = db.Column(db.String(120), unique=True, nullable=False)
@@ -16,7 +18,7 @@ class Coach(db.Model):
         return check_password_hash(self.CoachPasswordHash, password)
    
 
-class Player(db.Model):
+class Player(UserMixin,db.Model):
     PlayerID = db.Column(db.Integer, primary_key=True)
     PlayerName = db.Column(db.String(100), nullable=False)
     PlayerEmail = db.Column(db.String(120), unique=True, nullable=False)
