@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    {% if player %}
+    <div class="coach-info">
+        <h3>Your Coach</h3>
+        <p>Coach Name: {{ coach_name }}</p>
+        <p>Coach Code: {{ coach_code }}</p>
+        <a href="/join_coach">Join Coach</a>
+    </div>
+{% endif %}
+
+{% if coach %}
+    <div class="players-list">
+        <h3>Your Players</h3>
+        <ul>
+            {% for player in players %}
+                <li>{{ player.username }} - {{ player.player_code }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<div class="header">
+    <h1>Welcome to the Sports Hub</h1>
+    <form action="/logout" method="GET">
+        <button class="logout-btn" type="submit">Sign Out <i class="fas fa-sign-out-alt"></i></button>
+    </form>
+</div>
+
+<div class="content">
+    <div class="hello-box">
+        <h2>Hello Sport Enthusiast!</h2>
+        <p>Stay updated with the latest sports news, events, and more.</p>
+
+        <div class="dashboard-links">
+            <a href="/change_password">Change Password</a>
+            <a href="/delete_account">Delete Account</a>
+            <a href="/coach_dashboard">Coach Dashboard</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

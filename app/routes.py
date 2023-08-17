@@ -22,7 +22,7 @@ views = Blueprint('views', __name__)
 def home():
     
     if 'user_id' in session:
-        return render_template('hello_boss.html')
+        return render_template('coach_home.html')
     return render_template('login.html')
 
 
