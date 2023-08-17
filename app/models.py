@@ -26,7 +26,7 @@ class Player(db.Model):
     coach = db.relationship('Coach', back_populates='players')
 
     def set_password(self, password):
-        self.PasswordHash = generate_password_hash(password)
+        self.PlayerPasswordHash = generate_password_hash(password)
 
     def check_password(self, password):
-        return check_password_hash(self.PasswordHash, password)
+        return check_password_hash(self.PlayerPasswordHash, password)

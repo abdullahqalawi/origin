@@ -18,15 +18,20 @@ def generate_player_code():
     return ''.join(random.choice(characters) for _ in range(code_length))
 
 views = Blueprint('views', __name__)
+
 @views.route('/', methods=['GET', 'POST'])
 def home():
-    
     if 'user_id' in session:
-        return render_template('coach_home.html')
-    return render_template('login.html')
+        user_type = session.get('user_type')  # Add this line to get user type
+        if user_type == 'coach':
+            return render_template('coach_home.html')
+        elif user_type == 'player':
+            return render_template('player_home.html')
+    return redirect('/login')
 
 
 @views.route('/login/', methods=['GET', 'POST'])
+
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -37,17 +42,17 @@ def login():
 
         if coach and coach.check_password(password):
             session['user_id'] = coach.CoachID
-            
+            session['user_type'] = 'coach'  # Add this line
             return redirect('/')
         elif player and player.check_password(password):
             session['user_id'] = player.PlayerID
+            session['user_type'] = 'player'  # Add this line
             return redirect('/')
         else:
             flash('Wrong username or password!')
             return redirect('/login')
 
     return render_template('login.html')
-
 
 # ... (other route imports and code)
 @views.route('/signup/', methods=['GET', 'POST'])
@@ -78,6 +83,7 @@ def signup():
                 new_player = Player(PlayerName=new_username, PlayerEmail=new_email, CoachCode="Null", PlayerPasswordHash=hashed_password)
                 new_player.set_password(new_password)
                 db.session.add(new_player)
+                
             else:
                 flash('Invalid role.')
                 return redirect('/signup')
