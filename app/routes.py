@@ -305,10 +305,8 @@ def coach_dashboard():
 
 
 
-
 @views.route('/player_dashboard')
 def player_dashboard():
-    
     if 'user_id' in session:
         player_id = session['user_id']
         player = Player.query.get(player_id)
@@ -320,34 +318,36 @@ def player_dashboard():
             'Shooting': player.Shooting,
             'Rebounding': player.Rebounding
         }
-        def generate_workout(position, lowest_skills, equal_skills, highest_rated_skills):
+        
+        def generate_workout(position, lowest_skills, equal_skills, rebounding_tied_with_highest, skills):
             workout_types = {
-                    'Point Guard': ['1', '6', '11'],
-                    'Shooting Guard': ['2', '7', '12'],
-                    'Small Forward': ['3', '8', '13'],
-                    'Power Forward': ['4', '9', '14'],
-                    'Center': ['5', '10', '15']
+                'Point Guard': ['1', '6', '11'],
+                'Shooting Guard': ['2', '7', '12'],
+                'Small Forward': ['3', '8', '13'],
+                'Power Forward': ['4', '9', '14'],
+                'Center': ['5', '10', '15']
             }
-
+            finishing_skill = skills['Finishing']
+            shooting_skill = skills['Shooting']
+            
             workout_type = None
-            if equal_skills:
-                workout_type = workout_types[position][0]  # Default to Finishing/Shooting
-            elif 'Finishing' in lowest_skills and 'Shooting' in lowest_skills:
+            if equal_skills or rebounding_tied_with_highest:
+                # Prioritize Finishing or Shooting for equal skills or tied with Rebounding
                 workout_type = workout_types[position][0]
-            elif 'Finishing' in lowest_skills and 'Rebounding' in lowest_skills:
-                workout_type = workout_types[position][1]
-            elif 'Shooting' in lowest_skills and 'Rebounding' in lowest_skills:
-                workout_type = workout_types[position][2]
-
-            # Prioritize workout combining lowest-rated skill with the other highest-rated skill if Rebounding is tied with highest skill
-            if rebounding_tied_with_highest:
-                if 'Finishing' in rebounding_tied_with_highest:
+            else:
+                # Determine the lowest-rated skill and select corresponding workout
+                if 'Finishing' in lowest_skills:
                     workout_type = workout_types[position][0]
-                elif 'Shooting' in rebounding_tied_with_highest:
-                    workout_type = workout_types[position][1]
-
+                elif 'Shooting' in lowest_skills:
+                    workout_type = workout_types[position][0]
+                elif 'Rebounding' in lowest_skills:
+                    if finishing_skill > shooting_skill:
+                        workout_type = workout_types[position][2]
+                    elif finishing_skill < shooting_skill:
+                         workout_type = workout_types[position][1]
+                    else:
+                        workout_type = workout_types[position][1]###### We can change this based on what is more important shooting or finishing 
             return workout_type
-
 
         # Determine the highest-rated skill(s) and lowest-rated skill
         highest_rated_skills = [skill for skill, rating in skills.items() if rating == max(skills.values())]
@@ -358,15 +358,14 @@ def player_dashboard():
 
         # Check if Rebounding is tied with the highest-rated skill
         rebounding_tied_with_highest = 'Rebounding' in highest_rated_skills
-        
 
         # Generate the workout using the generate_workout function
-        workout = generate_workout(position, [lowest_rated_skill], equal_skills, rebounding_tied_with_highest)
+        workout = generate_workout(position, [lowest_rated_skill], equal_skills, rebounding_tied_with_highest, skills)
 
         return render_template('player_dashboard.html', player=player, workout=workout)
     else:
         return redirect('/login')
-    
+
 @views.route('/logout', methods=['GET'])
 @login_required
 def logout():
