@@ -2,7 +2,7 @@ from flask import Blueprint,render_template, request, redirect, flash, session,u
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from .models import Coach, Player
+from .models import Coach, Player 
 import random
 import string
 
@@ -17,6 +17,7 @@ def generate_player_code():
     characters = string.ascii_letters + string.digits
     code_length = 8
     return ''.join(random.choice(characters) for _ in range(code_length))
+
 
 views = Blueprint('views', __name__)
 @views.route('/', methods=['GET', 'POST'])
@@ -255,6 +256,62 @@ def player_form():
             player.Finishing = finishing
             player.Shooting = shooting
             player.Rebounding = rebounding
+            position = player.Position
+
+            skills = {
+                'Finishing': player.Finishing,
+                'Shooting': player.Shooting,
+                'Rebounding': player.Rebounding
+            }
+            
+            def generate_workout(position, lowest_skills, equal_skills, rebounding_tied_with_highest, skills):
+                workout_types = {
+                    'Point Guard': ['1', '6', '11'],
+                    'Shooting Guard': ['2', '7', '12'],
+                    'Small Forward': ['3', '8', '13'],
+                    'Power Forward': ['4', '9', '14'],
+                    'Center': ['5', '10', '15']
+                }
+                finishing_skill = skills['Finishing']
+                shooting_skill = skills['Shooting']
+                
+                workout_type = None
+                if equal_skills or rebounding_tied_with_highest:
+                    # Prioritize Finishing or Shooting for equal skills or tied with Rebounding
+                    workout_type = workout_types[position][0]
+                else:
+                    # Determine the lowest-rated skill and select corresponding workout
+                    if 'Finishing' in lowest_skills:
+                        workout_type = workout_types[position][0]
+                    elif 'Shooting' in lowest_skills:
+                        workout_type = workout_types[position][0]
+                    elif 'Rebounding' in lowest_skills:
+                        if finishing_skill > shooting_skill:
+                            workout_type = workout_types[position][2]
+                        elif finishing_skill < shooting_skill:
+                            workout_type = workout_types[position][1]
+                        else:
+                            workout_type = workout_types[position][1]###### We can change this based on what is more important shooting or finishing 
+                return workout_type
+                
+            # Determine the highest-rated skill(s) and lowest-rated skill
+            highest_rated_skills = [skill for skill, rating in skills.items() if rating == max(skills.values())]
+            lowest_rated_skill = min(skills, key=skills.get)
+
+            # Check if all skills are rated equally
+            equal_skills = len(set(skills.values())) == 1
+
+            # Check if Rebounding is tied with the highest-rated skill
+            rebounding_tied_with_highest = 'Rebounding' in highest_rated_skills
+
+            # Generate the workout using the generate_workout function
+            workout = generate_workout(position, [lowest_rated_skill], equal_skills, rebounding_tied_with_highest, skills)
+
+            player.Position = position
+            player.Finishing = finishing
+            player.Shooting = shooting
+            player.Rebounding = rebounding
+            player.Workout_code = workout
 
             db.session.commit()
             flash('Profile details updated successfully!')
@@ -287,6 +344,25 @@ def player_home():
         return redirect('/login')
 
 
+@views.route('/workout', methods=['GET'])
+@login_required
+def display_workout():
+    if 'user_id' in session and session.get('user_type') == 'player':
+        player_id = session['user_id']
+        player = Player.query.get(player_id)
+        
+        # Get the player's upcoming workout routine
+        upcoming_workouts = player.get_upcoming_workouts()
+
+        if upcoming_workouts:
+            workout = upcoming_workouts[0]  # Get the first upcoming workout routine
+            return render_template('workout.html', workout=workout)
+        else:
+            flash('No upcoming workout found.')
+            return redirect('/player_dashboard')
+    else:
+        flash('Please log in as a player.')
+        return redirect('/login')
 
 
 
@@ -310,57 +386,8 @@ def player_dashboard():
     if 'user_id' in session:
         player_id = session['user_id']
         player = Player.query.get(player_id)
-
-        # Get the player's position and skills
-        position = player.Position
-        skills = {
-            'Finishing': player.Finishing,
-            'Shooting': player.Shooting,
-            'Rebounding': player.Rebounding
-        }
-        
-        def generate_workout(position, lowest_skills, equal_skills, rebounding_tied_with_highest, skills):
-            workout_types = {
-                'Point Guard': ['1', '6', '11'],
-                'Shooting Guard': ['2', '7', '12'],
-                'Small Forward': ['3', '8', '13'],
-                'Power Forward': ['4', '9', '14'],
-                'Center': ['5', '10', '15']
-            }
-            finishing_skill = skills['Finishing']
-            shooting_skill = skills['Shooting']
-            
-            workout_type = None
-            if equal_skills or rebounding_tied_with_highest:
-                # Prioritize Finishing or Shooting for equal skills or tied with Rebounding
-                workout_type = workout_types[position][0]
-            else:
-                # Determine the lowest-rated skill and select corresponding workout
-                if 'Finishing' in lowest_skills:
-                    workout_type = workout_types[position][0]
-                elif 'Shooting' in lowest_skills:
-                    workout_type = workout_types[position][0]
-                elif 'Rebounding' in lowest_skills:
-                    if finishing_skill > shooting_skill:
-                        workout_type = workout_types[position][2]
-                    elif finishing_skill < shooting_skill:
-                         workout_type = workout_types[position][1]
-                    else:
-                        workout_type = workout_types[position][1]###### We can change this based on what is more important shooting or finishing 
-            return workout_type
-
-        # Determine the highest-rated skill(s) and lowest-rated skill
-        highest_rated_skills = [skill for skill, rating in skills.items() if rating == max(skills.values())]
-        lowest_rated_skill = min(skills, key=skills.get)
-
-        # Check if all skills are rated equally
-        equal_skills = len(set(skills.values())) == 1
-
-        # Check if Rebounding is tied with the highest-rated skill
-        rebounding_tied_with_highest = 'Rebounding' in highest_rated_skills
-
-        # Generate the workout using the generate_workout function
-        workout = generate_workout(position, [lowest_rated_skill], equal_skills, rebounding_tied_with_highest, skills)
+        workout = player.Workout_code
+       
 
         return render_template('player_dashboard.html', player=player, workout=workout)
     else:
