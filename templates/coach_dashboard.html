@@ -6,14 +6,13 @@
 </head>
 <body>
     <h1>Welcome, {{ coach.CoachName }}!</h1>
-    <h2>Enrolled Players:</h2>
-    <ul>
-        {% for player in enrolled_players %}
-        <li>{{ player.PlayerName }} ({{ player.PlayerEmail }})</li>
-        {% endfor %}
-    </ul>
-    <a href="/">Home</a>
+<h2>Enrolled Players:</h2>
+<ul>
+    {% for player in enrolled_players %}
+    <li>{{ player.PlayerName }} ({{ player.PlayerEmail }}) <a href="{{ url_for('views.edit_player_workout', player_id=player.PlayerID) }}">Edit Workout</a></li>
+    {% endfor %}
+</ul>
+<a href="/">Home</a>
+
 </body>
 </html>
-
-

@@ -2,9 +2,21 @@ from flask import Blueprint,render_template, request, redirect, flash, session,u
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from .models import Coach, Player 
+from .models import *
 import random
 import string
+
+def create_personalized_exercises(player_workout, exercises_data):
+    for exercise_data in exercises_data:
+        personalized_exercise = PersonalizedExercise(
+            personalized_workout=player_workout,
+            name=exercise_data['name'],
+            sets=exercise_data['sets'],
+            reps=exercise_data['reps']
+        )
+        db.session.add(personalized_exercise)
+    db.session.commit()
+
 
 # Define a function to generate a random coach code
 def generate_coach_code():
@@ -344,6 +356,7 @@ def player_home():
         return redirect('/login')
 
 
+
 @views.route('/workout', methods=['GET'])
 @login_required
 def display_workout():
@@ -351,18 +364,28 @@ def display_workout():
         player_id = session['user_id']
         player = Player.query.get(player_id)
         
-        # Get the player's upcoming workout routine
-        upcoming_workouts = player.get_upcoming_workouts()
+        if player.Workout_code:
+            workout = PersonalizedPlayerWorkout.query.filter_by(player_id=player_id).first()
 
-        if upcoming_workouts:
-            workout = upcoming_workouts[0]  # Get the first upcoming workout routine
-            return render_template('workout.html', workout=workout)
+            if workout:
+                exercises = workout.exercises
+                return render_template('workout.html', workout=workout, exercises=exercises)  # Pass the 'workout' variable to the template
+            else:
+                default_workout = WorkoutRoutine.query.get(player.Workout_code)
+                if default_workout:
+                    exercises = default_workout.exercises
+                    return render_template('workout.html', workout=default_workout, exercises=exercises)  # Pass the 'default_workout' variable to the template
+                else:
+                    flash('No workout found for the player.')
+                    return redirect('/player_dashboard')
         else:
-            flash('No upcoming workout found.')
+            flash('Player does not have a workout assigned.')
             return redirect('/player_dashboard')
     else:
         flash('Please log in as a player.')
         return redirect('/login')
+
+
 
 
 
@@ -377,7 +400,78 @@ def coach_dashboard():
     else:
         flash('Please log in as a coach.')
         return redirect('/login')
+    
 
+@views.route('/create_personalized_exercises', methods=['POST'])
+@login_required
+def create_personalized_exercises_route():
+    if 'user_id' in session and session.get('user_type') == 'coach':
+        coach_id = session['user_id']
+        coach = Coach.query.get(coach_id)
+
+        if request.method == 'POST':
+            player_id = int(request.form['player_id'])
+            exercises_data = request.form.getlist('exercises[]')
+
+            player = Player.query.get(player_id)
+            if player and player.CoachCode == coach.CoachCode:
+                player_workout = player.personalized_workout
+                if not player_workout:
+                    player_workout = PersonalizedPlayerWorkout(
+                        coach=coach,
+                        player=player
+                    )
+                    db.session.add(player_workout)
+                    db.session.commit()
+
+                create_personalized_exercises(player_workout, exercises_data)
+                flash('Personalized exercises created successfully!')
+                return redirect('/coach_dashboard')
+
+        flash('Failed to create personalized exercises.')
+        return redirect('/coach_dashboard')
+
+    flash('Please log in as a coach.')
+    return redirect('/login')
+
+@views.route('/edit_player_workout/<int:player_id>', methods=['GET', 'POST'])
+@login_required
+def edit_player_workout(player_id):
+    # Get the logged-in coach
+    coach_id = session['user_id']
+    coach = Coach.query.get(coach_id)
+
+    # Get the player
+    player = Player.query.get(player_id)
+    
+    # Fetch or create a personalized workout for the player
+    personalized_workout = PersonalizedPlayerWorkout.query.filter_by(player=player).first()
+    if personalized_workout is None:
+        personalized_workout = PersonalizedPlayerWorkout(player=player, coach_id=coach.CoachID)
+        db.session.add(personalized_workout)
+        db.session.commit()
+
+    # Handle form submission if POST request
+    if request.method == 'POST':
+        # Process the form data and update the personalized workout
+
+        # Example: update exercises based on form data
+        exercise_name = request.form.get('exercise_name')
+
+        sets = int(request.form.get('exercise_sets'))
+
+        reps = int(request.form.get('exercise_reps'))
+
+
+        # Update the personalized workout with new exercise data
+        personalized_exercise = PersonalizedExercise(name=exercise_name, sets=sets, reps=reps, personalized_workout=personalized_workout)
+        personalized_workout.exercises.append(personalized_exercise)  # Associate the exercise with the workout
+        db.session.add(personalized_exercise)
+        db.session.commit()
+
+        flash('Exercise added to personalized workout.')
+
+    return render_template('edit_playerworkout.html', coach=coach, player=player, personalized_workout=personalized_workout)
 
 
 

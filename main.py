@@ -25,8 +25,8 @@ if __name__ == "__main__":
         db.create_all()
         app.run(host='0.0.0.0', port=5000)
         
-        """   # Monday workout (Workout Group 3)
-        monday_workout_group3 = WorkoutRoutine(day='Monday', workout_group=3)
+           # Monday workout (Workout Group 3)
+        """ monday_workout_group3 = WorkoutRoutine(day='Monday', workout_group=3)
         db.session.add(monday_workout_group3)
 
         monday_exercises_group3 = [
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         ]
         db.session.add_all(friday_exercises_group3)
 
-        db.session.commit() """
-        
+        db.session.commit() 
+         """
     
        
