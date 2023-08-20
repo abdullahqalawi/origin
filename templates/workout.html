@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Routine</title>
+    <!-- Add your CSS links and other meta tags here -->
+</head>
+<body>
+    <h1>Workout Routine</h1>
+    <p>Here's your upcoming workout routine:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Exercise</th>
+                <th>Sets</th>
+                <th>Reps</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for exercise in workout.exercises %}
+            <tr>
+                <td>{{ exercise.name }}</td>
+                <td>{{ exercise.sets }}</td>
+                <td>{{ exercise.reps }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

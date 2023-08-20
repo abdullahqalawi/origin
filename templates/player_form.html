@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
+</head>
+<body>
+
+<div class="profile-box">
+    <h2>Complete Your Player Profile</h2>
+    <form action="/player_form" method="POST">
+        <div class="user-box">
+            <label for="position">Position:</label>
+            <select id="position" name="position" required>
+                <option value="" disabled selected>Select Position</option>
+                <option value="Point Guard">Point Guard</option>
+                <option value="Shooting Guard">Shooting Guard</option>
+                <option value="Small Forward">Small Forward</option>
+                <option value="Power Forward">Power Forward</option>
+                <option value="Center">Center</option>
+            </select>
+        </div>
+        <div class="user-box">
+            <label for="finishing">Finishing (1-10):</label>
+            <input type="number" id="finishing" name="finishing" min="1" max="10" required>
+        </div>
+        <div class="user-box">
+            <label for="shooting">Shooting (1-10):</label>
+            <input type="number" id="shooting" name="shooting" min="1" max="10" required>
+        </div>
+        <div class="user-box">
+            <label for="rebounding">Rebounding (1-10):</label>
+            <input type="number" id="rebounding" name="rebounding" min="1" max="10" required>
+        </div>
+        
+        <div class="buttons">
+            <button type="submit">Save Profile</button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
