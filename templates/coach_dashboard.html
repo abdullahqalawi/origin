@@ -9,7 +9,10 @@
     <h2>Enrolled Players:</h2>
     <ul>
         {% for player in enrolled_players %}
-        <li>{{ player.PlayerName }} ({{ player.PlayerEmail }})</li>
+        <li>
+            {{ player.PlayerName }} ({{ player.PlayerEmail }}):
+            {{ player.completed_exercises|length }}
+        </li>
         {% endfor %}
     </ul>
     <a href="/">Home</a>

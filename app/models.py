@@ -2,6 +2,7 @@ from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from datetime import datetime, timedelta
+from sqlalchemy.orm import relationship
 
 
 
@@ -39,7 +40,7 @@ class Player(UserMixin,db.Model):
 
     CoachCode = db.Column(db.String(10), db.ForeignKey('coach.CoachCode'), nullable=True)
     coach = db.relationship('Coach', back_populates='players')
-    
+    completed_exercises = db.relationship('ExerciseCompletion', back_populates='player')
     def get_id(self):
         return str(self.PlayerID)
 
@@ -73,9 +74,17 @@ class Player(UserMixin,db.Model):
         upcoming_workouts = WorkoutRoutine.query.filter_by(day=day_name).filter_by(day=day_name, workout_group=workout_group).all()
 
         return upcoming_workouts 
-   
+    def has_completed_exercise(self, exercise):
+        return any(completion.exercise_id == exercise.id for completion in self.completed_exercises)
 
+    def mark_completed_exercise(self, exercise):
+        completion = ExerciseCompletion(player=self, exercise=exercise)
+        db.session.add(completion)
 
+    def remove_completed_exercise(self, exercise):
+        completion = ExerciseCompletion.query.filter_by(player=self, exercise=exercise).first()
+        if completion:
+            db.session.delete(completion)
 
     
 
@@ -92,10 +101,22 @@ class Exercise(db.Model):
     sets = db.Column(db.String(50), nullable=True)
     reps = db.Column(db.String(50), nullable=True)
     workout_routine_id = db.Column(db.Integer, db.ForeignKey('workout_routine.id'), nullable=True)
-
+    completed_by = db.relationship('ExerciseCompletion', back_populates='exercise')
 class PlayerWorkout(db.Model):
     player_id = db.Column(db.Integer, db.ForeignKey('player.PlayerID'), primary_key=True)
     workout_routine_id = db.Column(db.Integer, db.ForeignKey('workout_routine.id'), primary_key=True)
+
+
+class ExerciseCompletion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    player_id = db.Column(db.Integer, db.ForeignKey('player.PlayerID'), nullable=False)
+    exercise_id = db.Column(db.Integer, db.ForeignKey('exercise.id'), nullable=False)
+    completion_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    player = db.relationship('Player', back_populates='completed_exercises')
+    exercise = db.relationship('Exercise', back_populates='completed_by')
+
+
 
 
 

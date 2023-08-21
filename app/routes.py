@@ -2,7 +2,7 @@ from flask import Blueprint,render_template, request, redirect, flash, session,u
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from .models import Coach, Player 
+from .models import Coach, Player ,Exercise,ExerciseCompletion
 import random
 import string
 
@@ -356,7 +356,8 @@ def display_workout():
 
         if upcoming_workouts:
             workout = upcoming_workouts[0]  # Get the first upcoming workout routine
-            return render_template('workout.html', workout=workout)
+            exercise_completed = {}
+            return render_template('workout.html', workout=workout, exercise_completed=exercise_completed, player=player)
         else:
             flash('No upcoming workout found.')
             return redirect('/player_dashboard')
@@ -379,7 +380,22 @@ def coach_dashboard():
         return redirect('/login')
 
 
+@views.route('/mark_completed/<int:exercise_id>', methods=['POST'])
+@login_required
+def mark_completed(exercise_id):
+    player_id = session['user_id']
+    player = Player.query.get(player_id)
+    exercise = Exercise.query.get(exercise_id)
 
+    if player and exercise:
+        completion = ExerciseCompletion(player=player, exercise=exercise)
+        db.session.add(completion)
+        db.session.commit()
+        flash('Exercise marked as completed!')
+    else:
+        flash('Exercise or player not found.')
+
+    return redirect('/player_home')
 
 @views.route('/player_dashboard')
 def player_dashboard():
