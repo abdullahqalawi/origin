@@ -29,8 +29,7 @@ class Player(UserMixin, db.Model):
     PlayerID = db.Column(db.Integer, primary_key=True)
     PlayerName = db.Column(db.String(5000), nullable=False)
     PlayerEmail = db.Column(db.String(120), unique=True, nullable=False)
-    CoachCode = db.Column(db.String(10), db.ForeignKey(
-        'coach.CoachCode'), nullable=True)
+    CoachCode = db.Column(db.String(10), db.ForeignKey('coach.CoachCode'), nullable=True)
     PlayerPasswordHash = db.Column(db.String(120), nullable=False)
     Position = db.Column(db.String(50), nullable=True)
     Finishing = db.Column(db.Integer, nullable=True)
@@ -98,7 +97,7 @@ class PersonalizedExercise(db.Model):
 class WorkoutRoutine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     day = db.Column(db.String(50), nullable=True)
-    workout_group = db.Column(db.Integer, nullable=True)  # New field
+    workout_group = db.Column(db.Integer, nullable=True)  
     exercises = db.relationship(
         'Exercise', backref='workout_routine', lazy=True)
 
