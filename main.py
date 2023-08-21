@@ -32,7 +32,7 @@ if __name__ == "__main__":
         db.session.add(monday_workout_group1)
 
         monday_exercises_group1 = [
-            Exercise(name='Squats', sets=3, reps=12, workout_routine=monday_workout_group1),
+            Exercise(name='Squats', sets=3, reps=12, workout_routine=monday_workout_group),
             Exercise(name='Leg Extensions', sets=3, reps=12, workout_routine=monday_workout_group1),
             Exercise(name='Leg Curls', sets=3, reps=12, workout_routine=monday_workout_group1),
             Exercise(name='Bulgarian Split Squats', sets=3, reps=10, workout_routine=monday_workout_group1),
