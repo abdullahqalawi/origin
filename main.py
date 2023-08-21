@@ -25,48 +25,9 @@ if __name__ == "__main__":
         db.create_all()
         app.run(host='0.0.0.0', port=5000)
         
-        """   # Monday workout (Workout Group 3)
-        monday_workout_group3 = WorkoutRoutine(day='Monday', workout_group=3)
-        db.session.add(monday_workout_group3)
-
-        monday_exercises_group3 = [
-            Exercise(name='Squats', sets=3, reps=12, workout_routine=monday_workout_group3),
-            Exercise(name='Leg Extensions', sets=3, reps=12, workout_routine=monday_workout_group3),
-            Exercise(name='Leg Curls', sets=3, reps=12, workout_routine=monday_workout_group3),
-            Exercise(name='Weighted Step Ups', sets=3, reps=12, workout_routine=monday_workout_group3),
-            Exercise(name='Calf Raises', sets=3, reps=20, workout_routine=monday_workout_group3)
-        ]
-        db.session.add_all(monday_exercises_group3)
-
-        # Wednesday workout (Workout Group 3)
-        wednesday_workout_group3 = WorkoutRoutine(day='Wednesday', workout_group=3)
-        db.session.add(wednesday_workout_group3)
-
-        wednesday_exercises_group3 = [
-            Exercise(name='Tricep Pushdown', sets=3, reps=12, workout_routine=wednesday_workout_group3),
-            Exercise(name='Lateral Raises', sets=3, reps=12, workout_routine=wednesday_workout_group3),
-            Exercise(name='Shoulder Press', sets=3, reps=12, workout_routine=wednesday_workout_group3),
-            Exercise(name='Lat Pulldown', sets=3, reps=12, workout_routine=wednesday_workout_group3),
-            Exercise(name='Bench Press', sets=3, reps=12, workout_routine=wednesday_workout_group3)
-        ]
-        db.session.add_all(wednesday_exercises_group3)
-
-        # Friday workout (Workout Group 3)
-        friday_workout_group3 = WorkoutRoutine(day='Friday', workout_group=3)
-        db.session.add(friday_workout_group3)
-
-        friday_exercises_group3 = [
-            Exercise(name='Squats', sets=3, reps=12, workout_routine=friday_workout_group3),
-            Exercise(name='Leg Extensions', sets=3, reps=12, workout_routine=friday_workout_group3),
-            Exercise(name='Leg Curls', sets=3, reps=12, workout_routine=friday_workout_group3),
-            Exercise(name='Weighted Step Ups', sets=3, reps=12, workout_routine=friday_workout_group3),
-            Exercise(name='Calf Raises', sets=3, reps=20, workout_routine=friday_workout_group3)
-        ]
-        db.session.add_all(friday_exercises_group3)
-
-        db.session.commit() """
+         
         
-       # Monday workout (Workout Group 1)
+    """    # Monday workout (Workout Group 1)
         monday_workout_group1 = WorkoutRoutine(day='Monday', workout_group=1)
         db.session.add(monday_workout_group1)
 
@@ -106,47 +67,4 @@ if __name__ == "__main__":
         db.session.add_all(friday_exercises_group1)
 
         db.session.commit()
-        # Monday workout (Workout Group 2)
-        monday_workout_group2 = WorkoutRoutine(day='Monday', workout_group=2)
-        db.session.add(monday_workout_group2)
-
-        monday_exercises_group2 = [
-            Exercise(name='Squats', sets=3, reps=12, workout_routine=monday_workout_group2),
-            Exercise(name='Leg Extensions', sets=3, reps=12, workout_routine=monday_workout_group2),
-            Exercise(name='Leg Curls', sets=3, reps=12, workout_routine=monday_workout_group2),
-            Exercise(name='Bulgarian Split Squats', sets=3, reps=10, workout_routine=monday_workout_group2),
-            Exercise(name='Calf Raises', sets=3, reps=20, workout_routine=monday_workout_group2)
-        ]
-        db.session.add_all(monday_exercises_group2)
-
-        # Wednesday workout (Workout Group 2)
-        wednesday_workout_group2 = WorkoutRoutine(day='Wednesday', workout_group=2)
-        db.session.add(wednesday_workout_group2)
-
-        wednesday_exercises_group2 = [
-            Exercise(name='Tricep Pushdown', sets=3, reps=12, workout_routine=wednesday_workout_group2),
-            Exercise(name='Lateral Raises', sets=3, reps=12, workout_routine=wednesday_workout_group2),
-            Exercise(name='Shoulder Press', sets=3, reps=12, workout_routine=wednesday_workout_group2),
-            Exercise(name='Dumbbell Row', sets=3, reps=12, workout_routine=wednesday_workout_group2),
-            Exercise(name='Bench Press', sets=3, reps=12, workout_routine=wednesday_workout_group2)
-        ]
-        db.session.add_all(wednesday_exercises_group2)
-
-        # Friday workout (Workout Group 2)
-        friday_workout_group2 = WorkoutRoutine(day='Friday', workout_group=2)
-        db.session.add(friday_workout_group2)
-
-        friday_exercises_group2 = [
-            Exercise(name='Squats', sets=3, reps=12, workout_routine=friday_workout_group2),
-            Exercise(name='Leg Extensions', sets=3, reps=12, workout_routine=friday_workout_group2),
-            Exercise(name='Leg Curls', sets=3, reps=12, workout_routine=friday_workout_group2),
-            Exercise(name='Bulgarian Split Squats', sets=3, reps=10, workout_routine=friday_workout_group2),
-            Exercise(name='Calf Raises', sets=3, reps=20, workout_routine=friday_workout_group2)
-        ]
-        db.session.add_all(friday_exercises_group2)
-
-        db.session.commit()
-
-
-
-       
+        """
