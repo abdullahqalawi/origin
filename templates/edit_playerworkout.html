@@ -1,33 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Edit Player Workout</title>
-    <!-- Add your CSS and other necessary imports -->
-</head>
-<body>
-    <h1>Edit Player Workout</h1>
-    <h2>{{ player.PlayerName }} ({{ player.PlayerEmail }})</h2>
-    
-    <!-- Add form to edit player's workout -->
-    <form method="POST">
-        <!-- Exercise input fields go here -->
-        <div>
-            <label for="exercise_name">Exercise Name:</label>
-            <input type="text" id="exercise_name" name="exercise_name" required>
-        </div>
-        <div>
-            <label for="exercise_sets">Sets:</label>
-            <input type="text" id="exercise_sets" name="exercise_sets" required>
-        </div>
-        <div>
-            <label for="exercise_reps">Reps:</label>
-            <input type="text" id="exercise_reps" name="exercise_reps" required>
-        </div>
-        <!-- Repeat the above fields for each exercise -->
+<!-- Monday -->
+<div>
+    <label for="exercise_name_Monday">Monday Exercise Name:</label>
+    <input type="text" id="exercise_name_Monday" name="exercise_name_Monday" value="{{ existing_exercises[0].name if existing_exercises else '' }}" required>
+    <!-- ... (sets and reps inputs for Monday) -->
+</div>
 
-        <button type="submit">Update Workout</button>
-    </form>
-    
-    <a href="{{ url_for('templates.coach_dashboard') }}">Back to Coach Dashboard</a>
-</body>
-</html>
+<!-- Wednesday -->
+<div>
+    <label for="exercise_name_Wednesday">Wednesday Exercise Name:</label>
+    <input type="text" id="exercise_name_Wednesday" name="exercise_name_Wednesday" value="{{ existing_exercises[1].name if existing_exercises else '' }}" required>
+    <!-- ... (sets and reps inputs for Wednesday) -->
+</div>
+
+<!-- Friday -->
+<div>
+    <label for="exercise_name_Friday">Friday Exercise Name:</label>
+    <input type="text" id="exercise_name_Friday" name="exercise_name_Friday" value="{{ existing_exercises[2].name if existing_exercises else '' }}" required>
+    <!-- ... (sets and reps inputs for Friday) -->
+</div>
+

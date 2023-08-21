@@ -250,7 +250,6 @@ def join_coach():
 
     return render_template('join_coach.html', player=player)
 
-
 @views.route('/player_form', methods=['GET', 'POST'])
 def player_form():
     if 'user_id' in session and session.get('user_type') == 'player':
@@ -334,6 +333,90 @@ def player_form():
     else:
         flash('Please log in as a player.')
         return redirect('/login')
+""" 
+@views.route('/player_form', methods=['GET', 'POST'])
+def player_form():
+    if 'user_id' in session and session.get('user_type') == 'player':
+        player_id = session['user_id']
+        player = Player.query.get(player_id)
+
+        if request.method == 'POST':
+            position = request.form['position']
+            finishing = int(request.form['finishing'])
+            shooting = int(request.form['shooting'])
+            rebounding = int(request.form['rebounding'])
+
+            # Update player's profile details
+            player.Position = position
+            player.Finishing = finishing
+            player.Shooting = shooting
+            player.Rebounding = rebounding
+            position = player.Position
+
+            skills = {
+                'Finishing': player.Finishing,
+                'Shooting': player.Shooting,
+                'Rebounding': player.Rebounding
+            }
+            
+            def generate_workout(position, lowest_skills, equal_skills, rebounding_tied_with_highest, skills):
+                workout_types = {
+                    'Point Guard': ['1', '6', '11'],
+                    'Shooting Guard': ['2', '7', '12'],
+                    'Small Forward': ['3', '8', '13'],
+                    'Power Forward': ['4', '9', '14'],
+                    'Center': ['5', '10', '15']
+                }
+                finishing_skill = skills['Finishing']
+                shooting_skill = skills['Shooting']
+                
+                workout_type = None
+                if equal_skills or rebounding_tied_with_highest:
+                    # Prioritize Finishing or Shooting for equal skills or tied with Rebounding
+                    workout_type = workout_types[position][0]
+                else:
+                    # Determine the lowest-rated skill and select corresponding workout
+                    if 'Finishing' in lowest_skills:
+                        workout_type = workout_types[position][0]
+                    elif 'Shooting' in lowest_skills:
+                        workout_type = workout_types[position][0]
+                    elif 'Rebounding' in lowest_skills:
+                        if finishing_skill > shooting_skill:
+                            workout_type = workout_types[position][2]
+                        elif finishing_skill < shooting_skill:
+                            workout_type = workout_types[position][1]
+                        else:
+                            workout_type = workout_types[position][1]###### We can change this based on what is more important shooting or finishing 
+                return workout_type
+                
+            # Determine the highest-rated skill(s) and lowest-rated skill
+            highest_rated_skills = [skill for skill, rating in skills.items() if rating == max(skills.values())]
+            lowest_rated_skill = min(skills, key=skills.get)
+
+            # Check if all skills are rated equally
+            equal_skills = len(set(skills.values())) == 1
+
+            # Check if Rebounding is tied with the highest-rated skill
+            rebounding_tied_with_highest = 'Rebounding' in highest_rated_skills
+
+            # Generate the workout using the generate_workout function
+            workout = generate_workout(position, [lowest_rated_skill], equal_skills, rebounding_tied_with_highest, skills)
+
+            player.Position = position
+            player.Finishing = finishing
+            player.Shooting = shooting
+            player.Rebounding = rebounding
+            player.Workout_code = workout
+
+            db.session.commit()
+            flash('Profile details updated successfully!')
+
+            return redirect('/')
+
+        return render_template('player_form.html', player=player) 
+    else:
+        flash('Please log in as a player.')
+        return redirect('/login') """
 
 
 
@@ -434,6 +517,8 @@ def create_personalized_exercises_route():
     flash('Please log in as a coach.')
     return redirect('/login')
 
+# ... (other imports and code)
+
 @views.route('/edit_player_workout/<int:player_id>', methods=['GET', 'POST'])
 @login_required
 def edit_player_workout(player_id):
@@ -451,27 +536,35 @@ def edit_player_workout(player_id):
         db.session.add(personalized_workout)
         db.session.commit()
 
+    # Get existing exercises from the personalized workout
+    existing_exercises = personalized_workout.exercises
+
+    
     # Handle form submission if POST request
     if request.method == 'POST':
-        # Process the form data and update the personalized workout
-
-        # Example: update exercises based on form data
         exercise_name = request.form.get('exercise_name')
+        sets = request.form.get('exercise_sets')
+        reps = request.form.get('exercise_reps')
 
-        sets = int(request.form.get('exercise_sets'))
+        # Create a new PersonalizedExercise instance
+        new_exercise = PersonalizedExercise(
+            name=exercise_name,
+            sets=sets,
+            reps=reps,
+            personalized_workout=personalized_workout
+        )
 
-        reps = int(request.form.get('exercise_reps'))
+        # Add the new exercise to the personalized workout
+        personalized_workout.exercises.append(new_exercise)
 
-
-        # Update the personalized workout with new exercise data
-        personalized_exercise = PersonalizedExercise(name=exercise_name, sets=sets, reps=reps, personalized_workout=personalized_workout)
-        personalized_workout.exercises.append(personalized_exercise)  # Associate the exercise with the workout
-        db.session.add(personalized_exercise)
+        # Commit changes to the database
+        db.session.add(new_exercise)
         db.session.commit()
 
         flash('Exercise added to personalized workout.')
 
-    return render_template('edit_playerworkout.html', coach=coach, player=player, personalized_workout=personalized_workout)
+    return render_template('edit_playerworkout.html', coach=coach, player=player, personalized_workout=personalized_workout, existing_exercises=existing_exercises)
+
 
 
 

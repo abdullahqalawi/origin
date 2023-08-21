@@ -92,6 +92,7 @@ class PersonalizedExercise(db.Model):
     name = db.Column(db.String(255), nullable=True)
     sets = db.Column(db.String(50), nullable=True)
     reps = db.Column(db.String(50), nullable=True)
+    day = db.Column(db.String(50), nullable=True) 
     personalized_workout_id = db.Column(db.Integer, db.ForeignKey('personalized_player_workout.id'), nullable=True)
 
 
@@ -108,8 +109,7 @@ class Exercise(db.Model):
     name = db.Column(db.String(255), nullable=True)
     sets = db.Column(db.String(50), nullable=True)
     reps = db.Column(db.String(50), nullable=True)
-    workout_routine_id = db.Column(
-        db.Integer, db.ForeignKey('workout_routine.id'), nullable=True)
+    workout_routine_id = db.Column(db.Integer, db.ForeignKey('workout_routine.id'), nullable=True)
 
 
 class PlayerWorkout(db.Model):
