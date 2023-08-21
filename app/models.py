@@ -68,7 +68,7 @@ class Player(UserMixin,db.Model):
 
         day_name = upcoming_day.strftime('%A')
         
-        workout_group = self.Workout_code  # Assuming Workout_code corresponds to the workout group
+        workout_group = self.Workout_code  
 
         upcoming_workouts = WorkoutRoutine.query.filter_by(day=day_name).filter_by(day=day_name, workout_group=workout_group).all()
 
@@ -82,7 +82,7 @@ class Player(UserMixin,db.Model):
 class WorkoutRoutine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     day = db.Column(db.String(50), nullable=True)
-    workout_group = db.Column(db.Integer, nullable=True)  # New field
+    workout_group = db.Column(db.Integer, nullable=True)  
     exercises = db.relationship('Exercise', backref='workout_routine', lazy=True)
 
 

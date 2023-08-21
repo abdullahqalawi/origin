@@ -2,17 +2,17 @@ from flask import Blueprint,render_template, request, redirect, flash, session,u
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from .models import Coach, Player 
+from .models import Coach, Player ,Exercise,ExerciseCompletion
 import random
 import string
 
-# Define a function to generate a random coach code
+
 def generate_coach_code():
     characters = string.ascii_uppercase + string.digits
     code_length = 6
     return ''.join(random.choice(characters) for _ in range(code_length))
 
-# Define a function to generate a random player code
+
 def generate_player_code():
     characters = string.ascii_letters + string.digits
     code_length = 8
@@ -31,9 +31,9 @@ def home():
             player_id = session['user_id']
             player = Player.query.get(player_id)
     
-            # Check if the player's profile is complete
+            
             if player.Position is None or player.Finishing is None or player.Shooting is None or player.Rebounding is None:
-                return redirect('/player_form')  # Redirect to profile completion page
+                return redirect('/player_form')  
             
             coach = Coach.query.filter_by(CoachCode=player.CoachCode).first()
 
@@ -54,12 +54,12 @@ def login():
 
         if coach and coach.check_password(password):
             session['user_id'] = coach.CoachID
-            session['user_type'] = 'coach'  # Add this line
+            session['user_type'] = 'coach'  
             login_user(coach)
             return redirect('/')
         elif player and player.check_password(password):
             session['user_id'] = player.PlayerID
-            session['user_type'] = 'player'  # Add this line
+            session['user_type'] = 'player'  
             login_user(player) 
             return redirect('/')
         else:
@@ -68,7 +68,7 @@ def login():
 
     return render_template('login.html')
 
-# ... (other route imports and code)
+
 @views.route('/signup/', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -111,7 +111,7 @@ def signup():
     return render_template('signup.html')
 
 
-# ... (other routes and code)
+
 
 @views.route('/change_password/', methods=['GET', 'POST'])
 def change_password():
@@ -190,7 +190,7 @@ def reset_password():
         confirm_new_password = request.form['confirm_new_password']
         
         if new_password == confirm_new_password:
-            email = session.get('reset_email')  # Retrieve the email from the session
+            email = session.get('reset_email')  
             
             if email:
                 coach = Coach.query.filter_by(CoachEmail=email).first()
@@ -206,7 +206,7 @@ def reset_password():
                 db.session.commit()
                 flash('Password reset successfully. You can now log in with your new password.')
                 return redirect('/login')
-                # Clear the reset_email from the session
+              
                 session.pop('reset_email', None)
             else:
                 flash('Email not found in the session.')
@@ -251,7 +251,7 @@ def player_form():
             shooting = int(request.form['shooting'])
             rebounding = int(request.form['rebounding'])
 
-            # Update player's profile details
+           
             player.Position = position
             player.Finishing = finishing
             player.Shooting = shooting
@@ -351,12 +351,13 @@ def display_workout():
         player_id = session['user_id']
         player = Player.query.get(player_id)
         
-        # Get the player's upcoming workout routine
+      
         upcoming_workouts = player.get_upcoming_workouts()
 
         if upcoming_workouts:
-            workout = upcoming_workouts[0]  # Get the first upcoming workout routine
-            return render_template('workout.html', workout=workout)
+            workout = upcoming_workouts[0]  
+            exercise_completed = {}
+            return render_template('workout.html', workout=workout, exercise_completed=exercise_completed, player=player)
         else:
             flash('No upcoming workout found.')
             return redirect('/player_dashboard')
@@ -379,7 +380,22 @@ def coach_dashboard():
         return redirect('/login')
 
 
+@views.route('/mark_completed/<int:exercise_id>', methods=['POST'])
+@login_required
+def mark_completed(exercise_id):
+    player_id = session['user_id']
+    player = Player.query.get(player_id)
+    exercise = Exercise.query.get(exercise_id)
 
+    if player and exercise:
+        completion = ExerciseCompletion(player=player, exercise=exercise)
+        db.session.add(completion)
+        db.session.commit()
+        flash('Exercise marked as completed!')
+    else:
+        flash('Exercise or player not found.')
+
+    return redirect('/workout')
 
 @views.route('/player_dashboard')
 def player_dashboard():

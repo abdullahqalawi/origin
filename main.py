@@ -11,7 +11,7 @@ app.secret_key = 'asdasd'
 
 app.register_blueprint(views_blueprint)
 
-# Initialize and configure Flask-Login outside the app context
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'views.login'
 
