@@ -2,7 +2,7 @@ from flask import Blueprint,render_template, request, redirect, flash, session,u
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from .models import Coach, Player ,Exercise,ExerciseCompletion
+from .models import Coach, Player ,Exercise,PlayerWorkout,WorkoutRoutine
 import random
 import string
 
@@ -237,13 +237,20 @@ def join_coach():
             flash('Coach not found with the provided code.')
 
     return render_template('join_coach.html', player=player)
-
+ 
 
 @views.route('/player_form', methods=['GET', 'POST'])
 def player_form():
     if 'user_id' in session and session.get('user_type') == 'player':
         player_id = session['user_id']
         player = Player.query.get(player_id)
+
+        existing_workouts = PlayerWorkout.query.filter_by(player_id=player.PlayerID).all()
+        if existing_workouts:
+            # Delete the existing personalized workout
+            for existing_workout in existing_workouts:
+                db.session.delete(existing_workout)   
+                db.session.commit()
 
         if request.method == 'POST':
             position = request.form['position']
@@ -314,6 +321,21 @@ def player_form():
             player.Workout_code = workout
 
             db.session.commit()
+            workout_routines = WorkoutRoutine.query.filter_by(workout_group=workout).all()
+
+            # Create PlayerWorkout entries for each workout routine
+            for workout_routine in workout_routines:
+                for exercise in workout_routine.exercises:
+                    player_workout = PlayerWorkout(
+                        player_id=player.PlayerID,
+                        workout_routine_id=workout_routine.id,
+                        exercise_name=exercise.name,
+                        sets=exercise.sets,
+                        reps=exercise.reps
+                    )
+                    db.session.add(player_workout)
+
+            db.session.commit()
             flash('Profile details updated successfully!')
 
             return redirect('/')
@@ -344,26 +366,15 @@ def player_home():
         return redirect('/login')
 
 
-@views.route('/workout', methods=['GET'])
-@login_required
-def display_workout():
+@views.route('/workout/<day>')
+def workouts_by_day(day):
     if 'user_id' in session and session.get('user_type') == 'player':
         player_id = session['user_id']
         player = Player.query.get(player_id)
-        
-      
-        upcoming_workouts = player.get_upcoming_workouts()
-
-        if upcoming_workouts:
-            workout = upcoming_workouts[0]  
-            exercise_completed = {}
-            return render_template('workout.html', workout=workout, exercise_completed=exercise_completed, player=player)
-        else:
-            flash('No upcoming workout found.')
-            return redirect('/player_dashboard')
+        workouts = player.get_upcoming_workouts(day)
+        return render_template('workout.html', workouts=workouts, day=day)
     else:
-        flash('Please log in as a player.')
-        return redirect('/login')
+        return "Unauthorized", 401
 
 
 
@@ -378,9 +389,44 @@ def coach_dashboard():
     else:
         flash('Please log in as a coach.')
         return redirect('/login')
+    
+@views.route('/edit_player_workouts/<int:player_id>', methods=['GET', 'POST'])
+def edit_player_workouts(player_id):
+    if 'user_id' in session:
+        coach_id = session.get('user_id')
+        coach = Coach.query.get(coach_id)
+        player = Player.query.get(player_id)
+
+        if request.method == 'POST':
+            # Iterate through the form items and update the workouts
+            for workout_id, value in request.form.items():
+                if "_sets" in workout_id:
+                    workout_id = workout_id.replace("_sets", "")  # Remove the "_sets" suffix
+                    player_workout = PlayerWorkout.query.get(workout_id)
+                    if player_workout:
+                        player_workout.exercise_name = request.form.get(workout_id + '_name')  # Update name
+                        player_workout.sets = request.form.get(workout_id + '_sets')  # Update sets
+                        player_workout.reps = request.form.get(workout_id + '_reps')  # Update reps
+                        db.session.commit()
 
 
-@views.route('/mark_completed/<int:exercise_id>', methods=['POST'])
+            db.session.commit()
+            flash('Player workouts updated successfully.')
+            return redirect(url_for('views.coach_dashboard'))
+
+        # Get the player's workouts for display
+        days = ['Monday', 'Wednesday', 'Friday']
+        player_workouts = {}
+        for day in days:
+            player_workouts[day] = player.get_upcoming_workouts(day)
+
+        return render_template('edit_player_workouts.html', coach=coach, player=player, player_workouts=player_workouts)
+    else:
+        flash('Please log in as a coach.')
+        return redirect('/login')
+
+
+""" @views.route('/mark_completed/<int:exercise_id>', methods=['POST'])
 @login_required
 def mark_completed(exercise_id):
     player_id = session['user_id']
@@ -395,7 +441,7 @@ def mark_completed(exercise_id):
     else:
         flash('Exercise or player not found.')
 
-    return redirect('/workout')
+    return redirect('/workout') """
 
 @views.route('/player_dashboard')
 def player_dashboard():

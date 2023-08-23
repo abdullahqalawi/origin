@@ -37,6 +37,9 @@ class Player(UserMixin,db.Model):
 
     workouts = db.relationship('WorkoutRoutine', secondary='player_workout', lazy='subquery',backref=db.backref('players', lazy=True))
 
+    player_workouts = db.relationship('PlayerWorkout', back_populates='player', lazy=True, foreign_keys='PlayerWorkout.player_id')
+
+
     CoachCode = db.Column(db.String(10), db.ForeignKey('coach.CoachCode'), nullable=True)
     coach = db.relationship('Coach', back_populates='players')
     
@@ -53,31 +56,16 @@ class Player(UserMixin,db.Model):
     def check_password(self, password):
         return check_password_hash(self.PlayerPasswordHash, password)
 
-    def get_upcoming_workouts(self):
-        today = datetime.now().date()
-        days_ahead = (0 - today.weekday()) % 7  # Calculate days until next Monday
-
-        if days_ahead == 0:
-            upcoming_day = today + timedelta(days=2)  # Wednesday
-        elif days_ahead == 1:
-            upcoming_day = today + timedelta(days=1)  # Wednesday
-        elif days_ahead == 2:
-            upcoming_day = today + timedelta(days=2)  # Friday
-        else:
-            upcoming_day = today + timedelta(days=(4 - days_ahead))  # Monday
-
-        day_name = upcoming_day.strftime('%A')
-        
-        workout_group = self.Workout_code  
-
-        upcoming_workouts = WorkoutRoutine.query.filter_by(day=day_name).filter_by(day=day_name, workout_group=workout_group).all()
-
-        return upcoming_workouts 
+    def get_upcoming_workouts(self, day):
+        workout_group = self.Workout_code
+        upcoming_workouts = PlayerWorkout.query.join(WorkoutRoutine).filter(
+            PlayerWorkout.player_id == self.PlayerID,
+            WorkoutRoutine.day == day,
+            WorkoutRoutine.workout_group == workout_group
+        ).all()
+        return upcoming_workouts
    
 
-
-
-    
 
 class WorkoutRoutine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -93,10 +81,16 @@ class Exercise(db.Model):
     reps = db.Column(db.String(50), nullable=True)
     workout_routine_id = db.Column(db.Integer, db.ForeignKey('workout_routine.id'), nullable=True)
 
-class PlayerWorkout(db.Model):
-    player_id = db.Column(db.Integer, db.ForeignKey('player.PlayerID'), primary_key=True)
-    workout_routine_id = db.Column(db.Integer, db.ForeignKey('workout_routine.id'), primary_key=True)
 
+class PlayerWorkout(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    player_id = db.Column(db.Integer, db.ForeignKey('player.PlayerID'))
+    workout_routine_id = db.Column(db.Integer, db.ForeignKey('workout_routine.id'))
+    exercise_name = db.Column(db.Integer, db.ForeignKey('exercise.name'))
+    sets = db.Column(db.String(50), nullable=True)
+    reps = db.Column(db.String(50), nullable=True)
+
+    player = db.relationship('Player', back_populates='player_workouts', foreign_keys=[player_id])
 
 
 """ def get_upcoming_workouts(self):

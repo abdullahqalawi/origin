@@ -33,7 +33,8 @@
                 <a href="/change_password">Change Password</a>
                 <a href="/delete_account">Delete Account</a>
                 <a href="/player_dashboard">Player Dashboard (work in progress)</a>
-                <a href="/workout"> workouts</a>
+                <a href="{{ url_for('views.workouts_by_day', day='Monday') }}">Monday Workouts</a>
+                
             </div>
         </div>
     </div>

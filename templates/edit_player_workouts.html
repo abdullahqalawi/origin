@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <h1>Edit Workouts for {{ player.PlayerName }}</h1>
+<form method="post">
+    {% for day, workouts in player_workouts.items() %}
+    <h2>{{ day }}:</h2>
+    <ul>
+        {% for workout in workouts %}
+        <li>
+            <input type="text" name="{{ workout.id }}_name" value="{{ workout.exercise_name }}" placeholder="Workout Name">
+            <input type="text" name="{{ workout.id }}_sets" value="{{ workout.sets }}" placeholder="Sets">
+            <input type="text" name="{{ workout.id }}_reps" value="{{ workout.reps }}" placeholder="Reps">
+        </li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+    <button type="submit">Save Changes</button>
+</form>
+<a href="{{ url_for('views.coach_dashboard') }}">Back to Dashboard</a>
+
+</body>
+</html>
