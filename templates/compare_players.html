@@ -6,7 +6,7 @@
 </head>
 <body>
     <h1>Welcome, {{ coach.CoachName }}!</h1>
-    <h2>Enrolled Players:</h2>
+    <h2>Compare Players' Progress:</h2>
     <table>
         <thead>
             <tr>
@@ -15,7 +15,6 @@
                 <th>Finishing</th>
                 <th>Shooting</th>
                 <th>Rebounding</th>
-                
                 
             </tr>
         </thead>
@@ -27,7 +26,7 @@
                 <td>{{ player.Finishing }}</td>
                 <td>{{ player.Shooting }}</td>
                 <td>{{ player.Rebounding }}</td>
-                <td><a href="{{ url_for('views.player_details_coach', player_id=player.PlayerID) }}">View Details</a><td>
+                
             </tr>
             {% endfor %}
         </tbody>
