@@ -34,6 +34,8 @@ class Player(UserMixin,db.Model):
     Shooting = db.Column(db.Integer, nullable=True)
     Rebounding = db.Column(db.Integer, nullable=True)
     Workout_code = db.Column(db.Integer, nullable=True)
+    CoachFeedback = db.Column(db.Text, nullable=True)
+
 
     workouts = db.relationship('WorkoutRoutine', secondary='player_workout', lazy='subquery',backref=db.backref('players', lazy=True))
 

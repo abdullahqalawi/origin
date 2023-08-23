@@ -394,6 +394,51 @@ def coach_dashboard():
     else:
         flash('Please log in as a coach.')
         return redirect('/login')
+
+
+@views.route('/player_details/<int:player_id>')
+def player_details_coach(player_id):
+    if 'user_id' in session and session.get('user_type') == 'coach':
+        coach_id = session['user_id']
+        coach = Coach.query.get(coach_id)
+        player = Player.query.get(player_id)
+        
+        if request.method == 'POST':
+            feedback_text = request.form.get('feedback')
+
+            # Update the player's feedback field
+            player.CoachFeedback = feedback_text
+            db.session.commit()
+
+            return redirect(url_for('views.player_details_coach', player_id=player_id))
+        days = ['Monday', 'Wednesday', 'Friday']
+        player_workouts = {}
+        for day in days:
+            player_workouts[day] = player.get_upcoming_workouts(day)
+        return render_template('player_details_coach.html', coach=coach, player=player, player_workouts=player_workouts)
+    else:
+        flash('Please log in as a coach.')
+        return redirect('/login')
+    
+@views.route('/provide_feedback/<int:player_id>', methods=['POST'])
+def provide_feedback(player_id):
+    if 'user_id' in session and session.get('user_type') == 'coach':
+        coach_id = session['user_id']
+        coach = Coach.query.get(coach_id)
+        player = Player.query.get(player_id)
+
+        if request.method == 'POST':
+            feedback_text = request.form.get('feedback')
+
+            # Update the player's feedback field
+            player.CoachFeedback = feedback_text
+            db.session.commit()
+
+            flash('Feedback submitted successfully.')
+            return redirect(url_for('views.player_details_coach', player_id=player_id))
+
+    flash('Please log in as a coach.')
+    return redirect('/login')
     
 @views.route('/edit_player_workouts/<int:player_id>', methods=['GET', 'POST'])
 def edit_player_workouts(player_id):

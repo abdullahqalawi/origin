@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <h1>Player Details for {{ player.PlayerName }}</h1>
+    <p><strong>Player Name:</strong> {{ player.PlayerName }}</p>
+    <p><strong>Player Email:</strong> {{ player.PlayerEmail }}</p>
+    <p><strong>Position:</strong> {{ player.Position }}</p>
+    <p><strong>Finishing Skill:</strong> {{ player.Finishing }}</p>
+    <p><strong>Shooting Skill:</strong> {{ player.Shooting }}</p>
+    <p><strong>Rebounding Skill:</strong> {{ player.Rebounding }}</p>
+
+    <h2>Workout Details</h2>
+    <ul>
+        {% for day, workouts in player_workouts.items() %}
+        <h3>{{ day }}:</h3>
+        <ul>
+            {% for workout in workouts %}
+            <li>
+                <strong>Exercise Name:</strong> {{ workout.exercise_name }}<br>
+                <strong>Sets:</strong> {{ workout.sets }}<br>
+                <strong>Reps:</strong> {{ workout.reps }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endfor %}
+    </ul>
+    
+    <h2>Feedback</h2>
+    <form method="post" action="{{ url_for('views.provide_feedback', player_id=player.PlayerID) }}">
+        <textarea name="feedback" rows="4" cols="50" placeholder="Provide feedback"></textarea><br>
+        <button type="submit">Submit Feedback</button>
+    </form>
+
+    <a href="{{ url_for('views.edit_player_workouts', player_id=player.PlayerID) }}">Edit Workouts</a>
+    <a href="{{ url_for('views.coach_dashboard') }}">Back to Dashboard</a>
+</body>
+</html>

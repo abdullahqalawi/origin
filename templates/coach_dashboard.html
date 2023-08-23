@@ -7,14 +7,31 @@
 <body>
     <h1>Welcome, {{ coach.CoachName }}!</h1>
     <h2>Enrolled Players:</h2>
-    <ul>
-        {% for player in enrolled_players %}
-        <li>
-            {{ player.PlayerName }} ({{ player.PlayerEmail }})
-            <a href="{{ url_for('views.edit_player_workouts', player_id=player.PlayerID) }}">Edit</a>
-        </li>
-        {% endfor %}
-    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>Player Name</th>
+                <th>Position</th>
+                <th>Finishing</th>
+                <th>Shooting</th>
+                <th>Rebounding</th>
+                
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in enrolled_players %}
+            <tr>
+                <td>{{ player.PlayerName }}</td>
+                <td>{{ player.Position }}</td>
+                <td>{{ player.Finishing }}</td>
+                <td>{{ player.Shooting }}</td>
+                <td>{{ player.Rebounding }}</td>
+                <td><a href="{{ url_for('views.player_details_coach', player_id=player.PlayerID) }}">View Details</a><td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     <a href="/">Home</a>
 </body>
 </html>
