@@ -1,3 +1,4 @@
+
 from . import db  
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -35,6 +36,7 @@ class Player(UserMixin,db.Model):
     Shooting = db.Column(db.Integer, nullable=True)
     Rebounding = db.Column(db.Integer, nullable=True)
     Workout_code = db.Column(db.Integer, nullable=True)
+    sessions_completed = db.Column(db.Integer, default=0)
 
     workouts = db.relationship('WorkoutRoutine', secondary='player_workout', lazy='subquery',backref=db.backref('players', lazy=True))
 
@@ -67,7 +69,7 @@ class Player(UserMixin,db.Model):
         else:
             upcoming_day = today + timedelta(days=(4 - days_ahead))  # Monday
 
-        day_name = upcoming_day.strftime('%A')
+        day_name = upcoming_day.strftime('Friday')
         
         workout_group = self.Workout_code  # Assuming Workout_code corresponds to the workout group
 
@@ -112,6 +114,11 @@ class ExerciseCompletion(db.Model):
     player_id = db.Column(db.Integer, db.ForeignKey('player.PlayerID'), nullable=False)
     exercise_id = db.Column(db.Integer, db.ForeignKey('exercise.id'), nullable=False)
     completion_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+    player_session_completions = db.Column(db.Integer, default=0)  # Add this column
+    player_week_completions = db.Column(db.Integer, default=0)  # Add this column
+
 
     player = db.relationship('Player', back_populates='completed_exercises')
     exercise = db.relationship('Exercise', back_populates='completed_by')

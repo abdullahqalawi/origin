@@ -5,6 +5,8 @@ from app import db
 from .models import Coach, Player ,Exercise,ExerciseCompletion
 import random
 import string
+from datetime import datetime, timedelta
+
 
 # Define a function to generate a random coach code
 def generate_coach_code():
@@ -337,8 +339,7 @@ def player_home():
         if player.CoachCode:
             coach = Coach.query.filter_by(CoachCode=player.CoachCode).first()
 
-        return render_template('player_home.html', player=player, coach=coach,coach_name=coach.CoachName if coach else None,
-                               coach_code=coach.CoachCode if coach else None)
+        return render_template('player_home.html', player=player, coach=coach,coach_name=coach.CoachName if coach else None,coach_code=coach.CoachCode if coach else None)
     else:
         flash('Please log in as a player.')
         return redirect('/login')
@@ -356,7 +357,13 @@ def display_workout():
 
         if upcoming_workouts:
             workout = upcoming_workouts[0]  # Get the first upcoming workout routine
-            exercise_completed = {}
+            
+            # Get the exercise IDs completed by the player
+            completed_exercise_ids = [completion.exercise_id for completion in player.completed_exercises]
+            
+            # Populate the exercise_completed dictionary with completed exercise IDs
+            exercise_completed = {exercise_id: True for exercise_id in completed_exercise_ids}
+            
             return render_template('workout.html', workout=workout, exercise_completed=exercise_completed, player=player)
         else:
             flash('No upcoming workout found.')
@@ -366,7 +373,6 @@ def display_workout():
         return redirect('/login')
 
 
-
 @views.route('/coach_dashboard')
 def coach_dashboard():
     if 'user_id' in session:
@@ -374,10 +380,28 @@ def coach_dashboard():
         coach = Coach.query.get(coach_id)
 
         enrolled_players = Player.query.filter_by(CoachCode=coach.CoachCode).all()
+
+        # Calculate exercises completed for each player
+        for player in enrolled_players:
+            player.completed_exercises = ExerciseCompletion.query.filter_by(player=player).all()
+            player.current_session_completions = ExerciseCompletion.query \
+                .filter_by(player=player) \
+                    .filter(ExerciseCompletion.completion_date >= datetime.now().replace(hour=0, minute=0, second=0)) \
+                        .count()
+
+            # Calculate current week start for each player
+            current_week_start = datetime.now().date() - timedelta(days=datetime.now().date().weekday())
+            player.current_week_completions = ExerciseCompletion.query \
+                .filter_by(player=player) \
+                    .filter(ExerciseCompletion.completion_date >= current_week_start) \
+                        .count()
+
         return render_template('coach_dashboard.html', coach=coach, enrolled_players=enrolled_players)
     else:
         flash('Please log in as a coach.')
         return redirect('/login')
+
+
 
 
 @views.route('/mark_completed/<int:exercise_id>', methods=['POST'])
@@ -391,11 +415,48 @@ def mark_completed(exercise_id):
         completion = ExerciseCompletion(player=player, exercise=exercise)
         db.session.add(completion)
         db.session.commit()
+
+        # Calculate the number of completed sessions and weeks
+        current_date = datetime.now().date()
+
+        current_week_start = current_date - timedelta(days=current_date.weekday())
+
+        # Get the total number of exercises for the session and week
+        total_session_exercises = Exercise.query.count()  # Replace with your total exercise count
+        total_week_exercises = Exercise.query.count()  # Replace with your total exercise count
+
+        # Calculate session completion percentage
+        session_completed_count = ExerciseCompletion.query \
+            .filter_by(player=player) \
+                .filter(ExerciseCompletion.completion_date >= datetime.combine(current_date, datetime.min.time())) \
+                    .count()
+
+        session_completion_percentage = (session_completed_count / total_session_exercises) * 100
+
+        # Calculate week completion percentage
+        week_completed_count = ExerciseCompletion.query \
+            .filter_by(player=player) \
+                .filter(ExerciseCompletion.completion_date >= current_week_start) \
+                    .count()
+        week_completion_percentage = (week_completed_count / total_week_exercises) * 100
+
+        # Update the player's completion percentages
+        player.sessions_completed += 1
+        player.session_completion_percentage = session_completion_percentage
+        player.week_completion_percentage = week_completion_percentage
+        completion.player_session_completions = session_completed_count
+        completion.player_week_completions = week_completed_count
+        db.session.commit()
+
         flash('Exercise marked as completed!')
+        return redirect('/player_home')
     else:
         flash('Exercise or player not found.')
 
-    return redirect('/player_home')
+    return redirect('/workout')
+
+
+
 
 @views.route('/player_dashboard')
 def player_dashboard():
@@ -403,11 +464,24 @@ def player_dashboard():
         player_id = session['user_id']
         player = Player.query.get(player_id)
         workout = player.Workout_code
-       
 
-        return render_template('player_dashboard.html', player=player, workout=workout)
+        # Calculate exercises completed for the current session
+        current_session_completions = ExerciseCompletion.query \
+            .filter_by(player=player) \
+                .filter(ExerciseCompletion.completion_date >= datetime.now().replace(hour=0, minute=0, second=0)) \
+                    .count()
+
+        # Calculate exercises completed for the current week
+        current_week_start = datetime.now().date() - timedelta(days=datetime.now().date().weekday())
+        current_week_completions = ExerciseCompletion.query \
+            .filter_by(player=player) \
+                .filter(ExerciseCompletion.completion_date >= current_week_start) \
+                    .count()
+
+        return render_template('player_dashboard.html', player=player, workout=workout,current_session_completions=current_session_completions,current_week_completions=current_week_completions)
     else:
         return redirect('/login')
+
 
 @views.route('/logout', methods=['GET'])
 @login_required

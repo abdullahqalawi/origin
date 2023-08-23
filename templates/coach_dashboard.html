@@ -7,16 +7,28 @@
 <body>
     <h1>Welcome, {{ coach.CoachName }}!</h1>
     <h2>Enrolled Players:</h2>
-    <ul>
+    <table style="border-collapse: collapse; border: 2px solid black;">
+        <tr>
+            <th style="border: 1px solid black;">Player Name</th>
+            <th style="border: 1px solid black;">Completed Exercises</th>
+            <th style="border: 1px solid black;">Exercises Completed in Current Session</th>
+            <th style="border: 1px solid black;">Session Completions % </th>
+            <th style="border: 1px solid black;">Exercises Completed in Current Week % </th>
+            <th style="border: 1px solid black;">Player Session Completions</th>
+            <th style="border: 1px solid black;">Player Week Completions</th> 
+        </tr>
         {% for player in enrolled_players %}
-        <li>
-            {{ player.PlayerName }} ({{ player.PlayerEmail }}):
-            {{ player.completed_exercises|length }}
-        </li>
+        <tr>
+            <td style="border: 1px solid black;">{{ player.PlayerName }}</td>
+            <td style="border: 1px solid black;">{{ player.completed_exercises|length }}</td>
+            <td style="border: 1px solid black;">{{ player.current_session_completions }}</td>
+            <td style="border: 1px solid black;">{{ (player.current_session_completions * 0.2) * 100 | round(0) }}</td>
+            <td style="border: 1px solid black;">{{ ((player.current_week_completions * 0.0667) * 100) | round(2) }}</td>
+            <td style="border: 1px solid black;">{{ player.player_session_completions }}</td> 
+            <td style="border: 1px solid black;">{{ player.player_week_completions }}</td> 
+        </tr>
         {% endfor %}
-    </ul>
+    </table>
     <a href="/">Home</a>
 </body>
 </html>
-
-

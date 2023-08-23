@@ -18,7 +18,10 @@
       
         <h2>Hello, {{ player.PlayerName }}!</h2>
         <p>Your Workout: {{ workout }}</p>
-        
+        <p>Exercises Completed in Current Week: {{ (current_session_completions *  0.0667) *100 | round(1) }}%</p> <!-- Switched positions -->
+        <p>Exercises Completed in Current Session: {{ ((current_week_completions * 0.2) * 100) | round(2) }}%</p>
+
+
         <div class="dashboard-links">
             <a href="/change_password">Change Password</a>
             <a href="/delete_account">Delete Account</a>

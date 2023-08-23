@@ -16,7 +16,6 @@
                 <th>Sets</th>
                 <th>Reps</th>
                 <th>Mark Completed</th>
-                
             </tr>
         </thead>
         <tbody>
@@ -26,11 +25,15 @@
                 <td>{{ exercise.sets }}</td>
                 <td>{{ exercise.reps }}</td>
                 <td>
-                    <form id="exercise-form-{{ exercise.id }}" action="{{ url_for('views.mark_completed', exercise_id=exercise.id) }}" method="POST">
-                        <button type="submit" id="mark-button-{{ exercise.id }}" class="mark-button" {% if exercise.id in exercise_completed %}disabled{% endif %}>
-                            {% if exercise.id in exercise_completed %}Completed{% else %}Mark Completed{% endif %}
-                        </button>
-                    </form>
+                    {% if exercise.id in exercise_completed %}
+                        Completed
+                    {% else %}
+                        <form id="exercise-form-{{ exercise.id }}" action="{{ url_for('views.mark_completed', exercise_id=exercise.id) }}" method="POST">
+                            <button type="submit" id="mark-button-{{ exercise.id }}" class="mark-button" {% if exercise.id in submitted_exercises %}disabled{% endif %}>
+                                Mark Completed
+                            </button>
+                        </form>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
