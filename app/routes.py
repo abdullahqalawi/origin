@@ -390,17 +390,6 @@ def coach_dashboard():
         flash('Please log in as a coach.')
         return redirect('/login')
 
-@views.route('/compare_players')##############################################################
-def compare_players():
-    if 'user_id' in session:
-        coach_id = session.get('user_id')
-        coach = Coach.query.get(coach_id)
-
-        enrolled_players = Player.query.filter_by(CoachCode=coach.CoachCode).all()
-        return render_template('compare_players.html', coach=coach, enrolled_players=enrolled_players)
-    else:
-        flash('Please log in as a coach.')
-        return redirect('/login')
 
 @views.route('/player_details/<int:player_id>')
 def player_details_coach(player_id):
