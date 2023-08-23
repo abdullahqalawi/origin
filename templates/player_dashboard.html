@@ -15,7 +15,6 @@
 
 <div class="content">
     <div class="hello-box">
-      
         <h2>Hello, {{ player.PlayerName }}!</h2>
         <p>Your Workout: {{ workout }}</p>
         
@@ -23,6 +22,53 @@
             <a href="/change_password">Change Password</a>
             <a href="/delete_account">Delete Account</a>
         </div>
+    </div>
+
+    <div class="statistics-form">
+        <h3>Enter Match Statistics</h3>
+        <form method="POST" action="{{ url_for('views.player_dashboard') }}">
+            <label for="assists">Assists:</label>
+            <input type="number" name="assists" required><br>
+            
+            <label for="points">Points:</label>
+            <input type="number" name="points" required><br>
+            
+            <label for="rebounds">Rebounds:</label>
+            <input type="number" name="rebounds" required><br>
+            
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div class="match-statistics">
+        <h3>Matches Statistics:</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Match ID</th>
+                    <th>Assists</th>
+                    <th>Points</th>
+                    <th>Rebounds</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in player.matches %}
+                <tr>
+                    <td>{{ match.match_number }}</td>
+                    <td>{{ match.assists }}</td>
+                    <td>{{ match.points }}</td>
+                    <td>{{ match.rebounds }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="average-statistics">
+        <h3>Average Statistics:</h3>
+        <p>Average Assists: {{ player.average_assists }}</p>
+        <p>Average Points: {{ player.average_points }}</p>
+        <p>Average Rebounds: {{ player.average_rebounds }}</p>
     </div>
 </div>
 

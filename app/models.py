@@ -38,11 +38,12 @@ class Player(UserMixin,db.Model):
     workouts = db.relationship('WorkoutRoutine', secondary='player_workout', lazy='subquery',backref=db.backref('players', lazy=True))
 
     player_workouts = db.relationship('PlayerWorkout', back_populates='player', lazy=True, foreign_keys='PlayerWorkout.player_id')
-
-
     CoachCode = db.Column(db.String(10), db.ForeignKey('coach.CoachCode'), nullable=True)
     coach = db.relationship('Coach', back_populates='players')
-    
+
+
+    matches = db.relationship('Match', backref='player', lazy=True)
+
     def get_id(self):
         return str(self.PlayerID)
 
@@ -64,8 +65,29 @@ class Player(UserMixin,db.Model):
             WorkoutRoutine.workout_group == workout_group
         ).all()
         return upcoming_workouts
-   
+    
+    @property
+    def average_assists(self):
+        total_assists = sum(match.assists for match in self.matches)
+        return total_assists / len(self.matches) if len(self.matches) > 0 else 0
 
+    @property
+    def average_points(self):
+        total_points = sum(match.points for match in self.matches)
+        return total_points / len(self.matches) if len(self.matches) > 0 else 0
+
+    @property
+    def average_rebounds(self):
+        total_rebounds = sum(match.rebounds for match in self.matches)
+        return total_rebounds / len(self.matches) if len(self.matches) > 0 else 0
+
+class Match(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    match_number = db.Column(db.Integer, nullable=False)
+    assists = db.Column(db.Integer, nullable=False)
+    points = db.Column(db.Integer, nullable=False)
+    rebounds = db.Column(db.Integer, nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey('player.PlayerID'), nullable=False)
 
 class WorkoutRoutine(db.Model):
     id = db.Column(db.Integer, primary_key=True)

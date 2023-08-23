@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Player Profile</title>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to the Sports Hub</h1>
+        <form action="/logout" method="GET">
+            <button class="logout-btn" type="submit">Sign Out <i class="fas fa-sign-out-alt"></i></button>
+        </form>
+    </div>
+
+    <div class="content">
+        <h2>Player Profile</h2>
+        <p><strong>Name:</strong> {{ player.PlayerName }}</p>
+        <p><strong>Email:</strong> {{ player.PlayerEmail }}</p>
+        <p><strong>Position:</strong> {{ player.Position or "N/A" }}</p>
+        <p><strong>Finishing:</strong> {{ player.Finishing or "N/A" }}</p>
+        <p><strong>Shooting:</strong> {{ player.Shooting or "N/A" }}</p>
+        <p><strong>Rebounding:</strong> {{ player.Rebounding or "N/A" }}</p>
+
+        {% if player.coach %}
+            <div class="coach-info">
+                <h3>Your Coach</h3>
+                <p><strong>Coach Name:</strong> {{ player.coach.CoachName }}</p>
+                <p><strong>Coach Code:</strong> {{ player.coach.CoachCode }}</p>
+            </div>
+        {% else %}
+            <div class="coach-info">
+                <a href="/join_coach">Enter a coach code</a>
+            </div>
+        {% endif %}
+        
+        <div class="dashboard-links">
+            <a href="{{ url_for('views.player_home') }}">Home</a> 
+            <!-- Button for player profile -->
+        </div>
+    </div>
+</body>
+</html>

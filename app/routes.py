@@ -2,7 +2,7 @@ from flask import Blueprint,render_template, request, redirect, flash, session,u
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from .models import Coach, Player ,Exercise,PlayerWorkout,WorkoutRoutine
+from .models import Coach, Player ,Exercise,PlayerWorkout,WorkoutRoutine,Match
 import random
 import string
 
@@ -155,16 +155,21 @@ def delete_account():
     user_id = session['user_id']
     coach = Coach.query.get(user_id)
     player = Player.query.get(user_id)
+    existing_workouts = PlayerWorkout.query.filter_by(player_id=player.PlayerID).all()
 
     if request.method == 'POST':
+        if existing_workouts:
+            for existing_workout in existing_workouts:
+                db.session.delete(existing_workout)
+            db.session.commit()  # Commit all workout deletions before deleting the player
+
         db.session.delete(coach or player)
         db.session.commit()
         session.pop('user_id', None)
         flash('Account deleted successfully!')
         return redirect('/')
+
     return render_template('delete_account.html', coach=coach, player=player)
-
-
 
 @views.route('/forget_password', methods=['GET', 'POST'])
 def forget_password():
@@ -443,17 +448,59 @@ def mark_completed(exercise_id):
 
     return redirect('/workout') """
 
-@views.route('/player_dashboard')
+
+
+@views.route('/player_dashboard', methods=['GET', 'POST'])
 def player_dashboard():
     if 'user_id' in session:
         player_id = session['user_id']
         player = Player.query.get(player_id)
         workout = player.Workout_code
-       
+        
+        if request.method == 'POST':
+            match_number = len(player.matches) + 1
+            assists = int(request.form['assists'])
+            points = int(request.form['points'])
+            rebounds = int(request.form['rebounds'])
+
+            # Create a new Match instance
+            new_match = Match(match_number=match_number, assists=assists, points=points, rebounds=rebounds)
+            player.matches.append(new_match)
+            db.session.commit()
 
         return render_template('player_dashboard.html', player=player, workout=workout)
     else:
         return redirect('/login')
+
+    
+@views.route('/coach_profile', methods=['GET'])
+@login_required
+def coach_profile():
+    coach_id = session.get('user_id')
+    coach = Coach.query.get(coach_id)
+    return render_template('coach_profile.html', coach=coach)
+
+
+
+@views.route('/player_profile', methods=['GET'])
+@login_required
+def player_profile():
+    player_id = session.get('user_id')
+    player = Player.query.get(player_id)
+    
+    return render_template('player_profile.html', player=player)
+
+
+@views.route('/coach_home')
+@login_required
+def coach_home():
+    coach_id = session.get('user_id')
+    coach = Coach.query.get(coach_id)
+
+    # Add any relevant logic for the coach's home page
+    return render_template('coach_home.html', coach=coach)
+
+
 
 @views.route('/logout', methods=['GET'])
 @login_required

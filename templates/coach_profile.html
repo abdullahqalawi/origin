@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Coach Profile</title>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to the Sports Hub</h1>
+        <form action="/logout" method="GET">
+            <button class="logout-btn" type="submit">Sign Out <i class="fas fa-sign-out-alt"></i></button>
+        </form>
+    </div>
+
+    <div class="content">
+        <h2>Coach Profile</h2>
+        <p><strong>Name:</strong> {{ coach.CoachName }}</p>
+        <p><strong>Email:</strong> {{ coach.CoachEmail }}</p>
+        <p><strong>Coach Code:</strong> {{ coach.CoachCode }}</p>
+        
+        <div class="dashboard-links">
+            <a href="{{ url_for('views.coach_home') }}">Coach Home</a> <!-- New button -->
+        </div>
+    </div>
+</body>
+</html>
