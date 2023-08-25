@@ -1,3 +1,4 @@
+
 from flask import Blueprint,render_template, request, redirect, flash, session,url_for
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -5,7 +6,7 @@ from app import db
 from .models import Coach, Player ,PlayerWorkout,WorkoutRoutine,Match,Exercise
 import random
 import string
-
+from datetime import datetime
 
 def generate_coach_code():
     characters = string.ascii_uppercase + string.digits
@@ -373,17 +374,67 @@ def player_home():
         return redirect('/login')
 
 
-@views.route('/workout/<day>')
-def workouts_by_day(day):
+
+
+
+
+
+@views.route('/workout')
+def workouts_by_day():
     if 'user_id' in session and session.get('user_type') == 'player':
         player_id = session['user_id']
         player = Player.query.get(player_id)
-        workouts = player.get_upcoming_workouts(day)
-        return render_template('workout.html', workouts=workouts, day=day)
+        
+        # Get the current day of the week (0 = Monday, 6 = Sunday)
+        current_day_of_week = datetime.today().weekday()
+        
+        # Define a dictionary to map day indices to workout days
+        
+        workout_days = {
+            0: 'Monday',
+            2: 'Wednesday',
+            4: 'Friday'
+        }
+        
+        # Calculate the next workout day
+        next_workout_day_index = (current_day_of_week + 1) % 7
+        while next_workout_day_index not in workout_days:
+            next_workout_day_index = (next_workout_day_index + 1) % 7
+        next_workout_day = workout_days[next_workout_day_index]
+        
+        # Get upcoming workouts
+        workouts = player.get_upcoming_workouts()
+        
+        return render_template('workout.html', workouts=workouts, day=next_workout_day)
     else:
         return "Unauthorized", 401
 
 
+
+""" 
+@views.route('/workout')
+def workouts_by_day():
+    if 'user_id' in session and session.get('user_type') == 'player':
+        player_id = session['user_id']
+        player = Player.query.get(player_id)
+        
+        # Get the current day of the week (0 = Monday, 6 = Sunday)
+        current_day_of_week = datetime.today().weekday()
+        
+        # Define a dictionary to map day indices to day names
+        day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        
+        # Calculate the next workout day by finding the next Monday (0)
+        next_workout_day_index = (current_day_of_week + 2) % 7  # Adjusted calculation
+        next_workout_day = day_names[next_workout_day_index]
+        
+        # Get upcoming workouts
+        workouts = player.get_upcoming_workouts()
+        
+        return render_template('workout.html', workouts=workouts, day=next_workout_day)
+    else:
+        return "Unauthorized", 401
+ """
 
 @views.route('/coach_dashboard')
 def coach_dashboard():
@@ -473,7 +524,7 @@ def edit_player_workouts(player_id):
         days = ['Monday', 'Wednesday', 'Friday']
         player_workouts = {}
         for day in days:
-            player_workouts[day] = player.get_upcoming_workouts(day)
+            player_workouts[day] = player.get_upcoming_workouts()
 
         return render_template('edit_player_workouts.html', coach=coach, player=player, player_workouts=player_workouts)
     
@@ -559,3 +610,5 @@ def coach_home():
 def logout():
     session.pop('user_id', None)
     return redirect('/')
+
+

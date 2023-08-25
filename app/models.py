@@ -1,3 +1,4 @@
+
 from . import db  
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -59,11 +60,20 @@ class Player(UserMixin,db.Model):
     def check_password(self, password):
         return check_password_hash(self.PlayerPasswordHash, password)
 
-    def get_upcoming_workouts(self, day):
+    def get_upcoming_workouts(self):
         workout_group = self.Workout_code
+        current_day = datetime.now().strftime('%A')  # Get the current day name
+        workout_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        current_day_index = workout_days.index(current_day)
+        
+        # Find the index of the next workout day (Monday, Tuesday, etc.)
+        next_workout_day_index = (current_day_index + 2) % 7  # Adding 2 to skip Sunday
+        
+        next_workout_day = workout_days[next_workout_day_index]
+        
         upcoming_workouts = PlayerWorkout.query.join(WorkoutRoutine).filter(
             PlayerWorkout.player_id == self.PlayerID,
-            WorkoutRoutine.day == day,
+            WorkoutRoutine.day == next_workout_day,
             WorkoutRoutine.workout_group == workout_group
         ).all()
         return upcoming_workouts
@@ -119,25 +129,6 @@ class PlayerWorkout(db.Model):
     player = db.relationship('Player', back_populates='player_workouts', foreign_keys=[player_id])
 
 
-""" def get_upcoming_workouts(self):
-        workout_days = ['Monday', 'Wednesday', 'Friday']
-        today = datetime.now().date()
 
-        # Find the next workout day
-        next_workout_day = None
-        for day in workout_days:
-            if day == 'Monday' and today.weekday() <= 3:
-                next_workout_day = day
-                break
-            elif day == 'Wednesday' and today.weekday() <= 2:
-                next_workout_day = day
-                break
-            elif day == 'Friday' and today.weekday() <= 4:
-                next_workout_day = day
-                break
 
-        if next_workout_day:
-            upcoming_workouts = WorkoutRoutine.query.filter_by(day=next_workout_day).all()
-            return next_workout_day, upcoming_workouts
-        else:
-            return None, [] """
+
