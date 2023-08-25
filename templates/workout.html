@@ -15,6 +15,7 @@
                 <th>Exercise</th>
                 <th>Sets</th>
                 <th>Reps</th>
+                <th>Video Tutorial</th> <!-- Add a new column for the video tutorial -->
                 <th>Mark Completed</th>
             </tr>
         </thead>
@@ -24,6 +25,9 @@
                 <td>{{ exercise.name }}</td>
                 <td>{{ exercise.sets }}</td>
                 <td>{{ exercise.reps }}</td>
+                <td>
+                    <a href="{{ exercise.video_link }}" target="_blank">Watch Tutorial</a>
+                </td>
                 <td>
                     {% if exercise.id in exercise_completed %}
                         Completed

@@ -69,7 +69,7 @@ class Player(UserMixin,db.Model):
         else:
             upcoming_day = today + timedelta(days=(4 - days_ahead))  # Monday
 
-        day_name = upcoming_day.strftime('Friday')
+        day_name = upcoming_day.strftime('Monday')
         
         workout_group = self.Workout_code  # Assuming Workout_code corresponds to the workout group
 
@@ -104,6 +104,8 @@ class Exercise(db.Model):
     reps = db.Column(db.String(50), nullable=True)
     workout_routine_id = db.Column(db.Integer, db.ForeignKey('workout_routine.id'), nullable=True)
     completed_by = db.relationship('ExerciseCompletion', back_populates='exercise')
+    video_link  = db.Column(db.String(255), nullable=True)
+
 class PlayerWorkout(db.Model):
     player_id = db.Column(db.Integer, db.ForeignKey('player.PlayerID'), primary_key=True)
     workout_routine_id = db.Column(db.Integer, db.ForeignKey('workout_routine.id'), primary_key=True)
