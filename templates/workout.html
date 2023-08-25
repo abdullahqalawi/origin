@@ -11,6 +11,7 @@
                 <h2>Workout Name: {{ workout.exercise_name  }}</h2>
                 <p>Sets: {{ workout.sets }}</p>
                 <p>Reps: {{ workout.reps }}</p>
+                <a href="{{ workout.exercise.tutorial_link }}">Tutorial Link</a>
             </li>
         {% endfor %}
     </ul>

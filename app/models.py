@@ -104,6 +104,7 @@ class Exercise(db.Model):
     sets = db.Column(db.String(50), nullable=True)
     reps = db.Column(db.String(50), nullable=True)
     workout_routine_id = db.Column(db.Integer, db.ForeignKey('workout_routine.id'), nullable=True)
+    tutorial_link = db.Column(db.String(255), nullable=True)  # New column for tutorial link
 
 
 class PlayerWorkout(db.Model):
@@ -113,6 +114,7 @@ class PlayerWorkout(db.Model):
     exercise_name = db.Column(db.Integer, db.ForeignKey('exercise.name'))
     sets = db.Column(db.String(50), nullable=True)
     reps = db.Column(db.String(50), nullable=True)
+    exercise = db.relationship('Exercise', foreign_keys=[exercise_name])  # New relationship to Exercise
 
     player = db.relationship('Player', back_populates='player_workouts', foreign_keys=[player_id])
 

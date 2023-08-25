@@ -25,18 +25,18 @@ if __name__ == "__main__":
         db.create_all()
         app.run(host='0.0.0.0', port=5000)
         
-         
+    """      
         
-    """ # Monday workout (Workout Group 1)
+     # Monday workout (Workout Group 1)
         monday_workout_group1 = WorkoutRoutine(day='Monday', workout_group=1)
         db.session.add(monday_workout_group1)
 
         monday_exercises_group1 = [
-            Exercise(name='Squats', sets=3, reps=12, workout_routine=monday_workout_group1),
-            Exercise(name='Leg Extensions', sets=3, reps=12, workout_routine=monday_workout_group1),
-            Exercise(name='Leg Curls', sets=3, reps=12, workout_routine=monday_workout_group1),
-            Exercise(name='Bulgarian Split Squats', sets=3, reps=10, workout_routine=monday_workout_group1),
-            Exercise(name='Calf Raises', sets=3, reps=20, workout_routine=monday_workout_group1)
+            Exercise(name='Squats', sets=3, reps=12, tutorial_link='https://www.youtube.com/watch?v=nFAscG0XUNY', workout_routine=monday_workout_group1),
+            Exercise(name='Leg Extensions', sets=3, tutorial_link='https://www.youtube.com/watch?v=YyvSfVjQeL0',reps=12, workout_routine=monday_workout_group1),
+            Exercise(name='Leg Curls', sets=3, reps=12, tutorial_link='https://www.youtube.com/watch?v=1Tq3QdYUuHs',workout_routine=monday_workout_group1),
+            Exercise(name='Bulgarian Split Squats', sets=3, reps=10,tutorial_link='https://www.youtube.com/shorts/uODWo4YqbT8', workout_routine=monday_workout_group1),
+            Exercise(name='Calf Raises', sets=3, reps=20, tutorial_link='https://www.youtube.com/watch?v=3UWi44yN-wM',workout_routine=monday_workout_group1)
         ]
         db.session.add_all(monday_exercises_group1)
 

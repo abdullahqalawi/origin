@@ -6,22 +6,33 @@
 </head>
 <body>
     <h1>Edit Workouts for {{ player.PlayerName }}</h1>
-<form method="post">
-    {% for day, workouts in player_workouts.items() %}
-    <h2>{{ day }}:</h2>
-    <ul>
-        {% for workout in workouts %}
-        <li>
-            <input type="text" name="{{ workout.id }}_name" value="{{ workout.exercise_name }}" placeholder="Workout Name">
-            <input type="text" name="{{ workout.id }}_sets" value="{{ workout.sets }}" placeholder="Sets">
-            <input type="text" name="{{ workout.id }}_reps" value="{{ workout.reps }}" placeholder="Reps">
-        </li>
+    <form method="post">
+        {% for day, workouts in player_workouts.items() %}
+        <h2>{{ day }}:</h2>
+        <ul>
+            {% for workout in workouts %}
+            <li>
+                <label for="{{ workout.id }}_name">Exercise:</label>
+                <select id="{{ workout.id }}_name" name="{{ workout.id }}_name">
+                    {% for exercise in exercises %}
+                        <option value="{{ exercise.name }}" {% if exercise.name == workout.exercise_name %} selected {% endif %}>{{ exercise.name }}</option>
+                    {% endfor %}
+                    <option value="Squats" {% if 'Squats' == workout.exercise_name.strip() %} selected {% endif %}>Squats</option>
+                    <option value="Leg Curls" {% if 'Leg Curls' == workout.exercise_name.strip() %} selected {% endif %}>Leg Curls</option>
+                    
+                    
+                </select>
+                <input type="hidden" id="{{ workout.id }}_link" value="{{ workout.exercise.link }}">
+                <label for="{{ workout.id }}_sets">Sets:</label>
+                <input type="text" id="{{ workout.id }}_sets" name="{{ workout.id }}_sets" value="{{ workout.sets }}" placeholder="Sets">
+                <label for="{{ workout.id }}_reps">Reps:</label>
+                <input type="text" id="{{ workout.id }}_reps" name="{{ workout.id }}_reps" value="{{ workout.reps }}" placeholder="Reps">
+            </li>
+            {% endfor %}
+        </ul>
         {% endfor %}
-    </ul>
-    {% endfor %}
-    <button type="submit">Save Changes</button>
-</form>
-<a href="{{ url_for('views.coach_dashboard') }}">Back to Dashboard</a>
-
+        <button type="submit">Save Changes</button>
+    </form>
+    <a href="{{ url_for('views.coach_dashboard') }}">Back to Dashboard</a>
 </body>
 </html>

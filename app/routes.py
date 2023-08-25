@@ -2,7 +2,7 @@ from flask import Blueprint,render_template, request, redirect, flash, session,u
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from .models import Coach, Player ,Exercise,PlayerWorkout,WorkoutRoutine,Match
+from .models import Coach, Player ,PlayerWorkout,WorkoutRoutine,Match,Exercise
 import random
 import string
 
@@ -331,6 +331,8 @@ def player_form():
             # Create PlayerWorkout entries for each workout routine
             for workout_routine in workout_routines:
                 for exercise in workout_routine.exercises:
+                    tutorial_link = exercise.tutorial_link
+
                     player_workout = PlayerWorkout(
                         player_id=player.PlayerID,
                         workout_routine_id=workout_routine.id,
@@ -448,22 +450,25 @@ def edit_player_workouts(player_id):
         player = Player.query.get(player_id)
 
         if request.method == 'POST':
-            # Iterate through the form items and update the workouts
             for workout_id, value in request.form.items():
                 if "_sets" in workout_id:
-                    workout_id = workout_id.replace("_sets", "")  # Remove the "_sets" suffix
+                    workout_id = workout_id.replace("_sets", "")
                     player_workout = PlayerWorkout.query.get(workout_id)
                     if player_workout:
-                        player_workout.exercise_name = request.form.get(workout_id + '_name')  # Update name
-                        player_workout.sets = request.form.get(workout_id + '_sets')  # Update sets
-                        player_workout.reps = request.form.get(workout_id + '_reps')  # Update reps
+                        exercise_name = request.form.get(workout_id + '_name')
+                        sets = request.form.get(workout_id + '_sets')
+                        reps = request.form.get(workout_id + '_reps')
+                        tutorial_link = request.form.get(workout_id + '_link')
+
+                        # Update the player workout with the new exercise name, sets, and reps
+                        player_workout.exercise_name = exercise_name
+                        player_workout.sets = sets
+                        player_workout.reps = reps
+                        player_workout.tutorial_link = tutorial_link  # Save the tutorial link
                         db.session.commit()
-
-
-            db.session.commit()
-            flash('Player workouts updated successfully.')
-            return redirect(url_for('views.coach_dashboard'))
-
+                        flash('Player workouts updated successfully.')
+                        return redirect(url_for('views.coach_dashboard'))
+        
         # Get the player's workouts for display
         days = ['Monday', 'Wednesday', 'Friday']
         player_workouts = {}
@@ -471,9 +476,11 @@ def edit_player_workouts(player_id):
             player_workouts[day] = player.get_upcoming_workouts(day)
 
         return render_template('edit_player_workouts.html', coach=coach, player=player, player_workouts=player_workouts)
+    
     else:
         flash('Please log in as a coach.')
         return redirect('/login')
+
 
 
 """ @views.route('/mark_completed/<int:exercise_id>', methods=['POST'])
